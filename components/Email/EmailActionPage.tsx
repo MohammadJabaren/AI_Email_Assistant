@@ -27,7 +27,6 @@ interface EmailActionPageProps {
 
 const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) => {
   const [input, setInput] = useState('');
-  const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
@@ -47,7 +46,15 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
   useEffect(() => {
     const savedChats = localStorage.getItem(`email-${action}-chats`);
     if (savedChats) {
-      setChats(JSON.parse(savedChats));
+      const parsedChats = JSON.parse(savedChats);
+      setChats(parsedChats);
+      // Set the most recent chat as current if no chat is selected
+      if (!currentChatId && parsedChats.length > 0) {
+        setCurrentChatId(parsedChats[0].id);
+      }
+    } else {
+      // Create a new chat if none exist
+      createNewChat();
     }
   }, [action]);
 
@@ -65,10 +72,10 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
       tone: 'professional',
       language: 'en'
     };
-    setChats([newChat, ...chats]);
+    console.log('Creating new chat:', newChat);
+    setChats(prevChats => [newChat, ...prevChats]);
     setCurrentChatId(newChat.id);
-    setInput('');
-    setResult('');
+    return newChat.id; // Return the new chat ID
   };
 
   const handleToneChange = (newTone: EmailTone) => {
@@ -104,16 +111,43 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
     if (currentChatId === chatId) {
       setCurrentChatId(updatedChats[0]?.id || null);
       setInput('');
-      setResult('');
     }
   };
 
   const handleSubmit = async () => {
-    if (!currentChatId) {
-      createNewChat();
+    if (!input.trim()) return;
+
+    let chatId = currentChatId;
+    if (!chatId) {
+      chatId = createNewChat();
     }
-    
+
+    const userInput = input;
+    setInput(''); // Clear input immediately after submission
     setLoading(true);
+
+    // Get the current chat and its last AI message if it exists
+    const currentChat = chats.find(c => c.id === chatId);
+    const lastAIMessage = currentChat?.messages.filter(m => m.role === 'assistant').pop();
+    const isModifyingOrEnhancing = userInput.startsWith('Enhance this email by ') || userInput.startsWith('Modify this email to include ');
+
+    // Immediately add user message to chat
+    setChats(prevChats => 
+      prevChats.map(chat => {
+        if (chat.id === chatId) {
+          console.log('Adding user message to chat:', chat.id);
+          return {
+            ...chat,
+            messages: [
+              ...chat.messages,
+              { role: 'user', content: userInput }
+            ]
+          };
+        }
+        return chat;
+      })
+    );
+
     try {
       const response = await fetch('/api/email', {
         method: 'POST',
@@ -122,33 +156,54 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
         },
         body: JSON.stringify({
           action,
-          text: input,
+          text: userInput,
           tone: currentTone,
-          language: currentLanguage
+          language: currentLanguage,
+          // Include previous email if we're modifying or enhancing
+          ...(isModifyingOrEnhancing && lastAIMessage ? { previousEmail: lastAIMessage.content } : {})
         }),
       });
 
-      const data = await response.json();
-      setResult(data.result);
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
 
-      // Update chat history
-      const updatedChats = chats.map(chat => {
-        if (chat.id === currentChatId) {
-          return {
-            ...chat,
-            messages: [
-              ...chat.messages,
-              { role: 'user' as const, content: input },
-              { role: 'assistant' as const, content: data.result }
-            ]
-          };
-        }
-        return chat;
-      });
-      setChats(updatedChats);
+      const data = await response.json();
+      console.log('Received response:', data);
+
+      // Add AI response to chat
+      setChats(prevChats => 
+        prevChats.map(chat => {
+          if (chat.id === chatId) {
+            console.log('Adding AI response to chat:', chat.id);
+            return {
+              ...chat,
+              messages: [
+                ...chat.messages,
+                { role: 'assistant', content: data.result }
+              ]
+            };
+          }
+          return chat;
+        })
+      );
     } catch (error) {
-      console.error('Error:', error);
-      setResult('An error occurred while processing your request.');
+      console.error('Error in handleSubmit:', error);
+      // Add error message to chat
+      setChats(prevChats => 
+        prevChats.map(chat => {
+          if (chat.id === chatId) {
+            return {
+              ...chat,
+              messages: [
+                ...chat.messages,
+                { role: 'assistant', content: 'An error occurred while processing your request.' }
+              ]
+            };
+          }
+          return chat;
+        })
+      );
     } finally {
       setLoading(false);
     }
@@ -159,12 +214,9 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
     const chat = chats.find(c => c.id === chatId);
     if (chat && chat.messages.length > 0) {
       const lastUserMessage = chat.messages.filter(m => m.role === 'user').pop();
-      const lastAssistantMessage = chat.messages.filter(m => m.role === 'assistant').pop();
       setInput(lastUserMessage?.content || '');
-      setResult(lastAssistantMessage?.content || '');
     } else {
       setInput('');
-      setResult('');
     }
   };
 
@@ -248,57 +300,113 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
               </div>
             </div>
 
-            {/* Tone Selector */}
-            {action !== 'summarize' && showToneSelector && (
-              <div className="p-4 border-b border-white/20">
-                <ToneSelector
-                  selectedTone={currentTone}
-                  onToneChange={handleToneChange}
-                />
-              </div>
-            )}
-
-            {/* Language Selector */}
-            {showLanguageSelector && (
-              <div className="p-4 border-b border-white/20">
-                <LanguageSelector
-                  selectedLanguage={currentLanguage}
-                  onLanguageChange={handleLanguageChange}
-                />
-              </div>
-            )}
-
-            {/* Messages Area */}
-            <div className="flex-1 overflow-auto p-4">
-              {currentChatId && chats.find(c => c.id === currentChatId)?.messages.map((message, index) => (
-                <ChatMessage
-                  key={index}
-                  message={message}
-                  messageIndex={index}
-                />
-              ))}
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {currentChatId ? (
+                <>
+                  {chats.find(c => c.id === currentChatId)?.messages.map((message, index) => {
+                    console.log('Rendering message:', { index, message });
+                    return (
+                      <div
+                        key={`${currentChatId}-${index}`}
+                        className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[80%] rounded-lg p-4 ${
+                            message.role === 'user'
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-[#2A2B32] text-white border border-white/20'
+                          }`}
+                        >
+                          <div className="text-sm mb-1 opacity-70">
+                            {message.role === 'user' ? 'You' : 'AI Assistant'}
+                          </div>
+                          <div className="whitespace-pre-wrap">{message.content}</div>
+                          {message.role === 'assistant' && (
+                            <div className="mt-3 flex items-center gap-2 text-sm">
+                              <button
+                                onClick={() => {
+                                  setInput(`Enhance this email by `);
+                                }}
+                                className="px-2 py-1 rounded bg-blue-500 hover:bg-blue-600 transition-colors text-white text-xs"
+                              >
+                                Enhance
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setInput(`Modify this email to include `);
+                                }}
+                                className="px-2 py-1 rounded bg-blue-500 hover:bg-blue-600 transition-colors text-white text-xs"
+                              >
+                                Modify
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {loading && (
+                    <div className="flex justify-start">
+                      <div className="max-w-[80%] rounded-lg p-4 bg-[#2A2B32] text-white border border-white/20">
+                        <div className="text-sm mb-1 opacity-70">AI Assistant</div>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                          <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                          <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex items-center justify-center h-full text-white opacity-50">
+                  Start a new conversation or select a chat from the sidebar
+                </div>
+              )}
             </div>
 
             {/* Input Area */}
             <div className="border-t border-white/20 p-4">
-              <div className="relative">
+              <div className="flex items-center gap-4">
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={placeholder}
-                  className="w-full resize-none rounded-lg bg-[#40414F] px-4 py-3 text-white pr-12"
-                  rows={4}
-                  disabled={loading}
+                  className="flex-1 bg-[#40414F] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  rows={3}
                 />
                 <button
                   onClick={handleSubmit}
-                  disabled={loading || !input.trim()}
-                  className="absolute right-2 bottom-2.5 rounded-lg p-2 text-white hover:bg-[#202123] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!input.trim() || loading}
+                  className={`p-3 rounded-lg ${
+                    !input.trim() || loading
+                      ? 'bg-gray-500 cursor-not-allowed'
+                      : 'bg-blue-500 hover:bg-blue-600'
+                  } text-white transition-colors`}
                 >
-                  <IconSend size={20} />
+                  {loading ? (
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <IconSend size={24} />
+                  )}
                 </button>
               </div>
             </div>
+
+            {/* Tone Selector Modal */}
+            {showToneSelector && (
+              <div className="absolute bottom-24 right-4 bg-[#2A2B32] rounded-lg shadow-lg border border-white/20">
+                <ToneSelector selectedTone={currentTone} onToneChange={handleToneChange} />
+              </div>
+            )}
+
+            {/* Language Selector Modal */}
+            {showLanguageSelector && (
+              <div className="absolute bottom-24 right-4 bg-[#2A2B32] rounded-lg shadow-lg border border-white/20">
+                <LanguageSelector selectedLanguage={currentLanguage} onLanguageChange={handleLanguageChange} />
+              </div>
+            )}
           </div>
         </main>
       </div>

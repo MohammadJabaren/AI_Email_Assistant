@@ -3,7 +3,6 @@ import { IconLanguage } from '@tabler/icons-react';
 export type EmailLanguage = {
   code: string;
   name: string;
-  flag: string;
 };
 
 interface LanguageSelectorProps {
@@ -12,21 +11,22 @@ interface LanguageSelectorProps {
 }
 
 const languages: EmailLanguage[] = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'es', name: 'Spanish', flag: '🇪🇸' },
-  { code: 'fr', name: 'French', flag: '🇫🇷' },
-  { code: 'de', name: 'German', flag: '🇩🇪' },
-  { code: 'it', name: 'Italian', flag: '🇮🇹' },
-  { code: 'pt', name: 'Portuguese', flag: '🇵🇹' },
-  { code: 'nl', name: 'Dutch', flag: '🇳🇱' },
-  { code: 'ru', name: 'Russian', flag: '🇷🇺' },
-  { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
-  { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
-  { code: 'ko', name: 'Korean', flag: '🇰🇷' },
-  { code: 'ar', name: 'Arabic', flag: '🇸🇦' },
-  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
-  { code: 'tr', name: 'Turkish', flag: '🇹🇷' },
-  { code: 'pl', name: 'Polish', flag: '🇵🇱' },
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Spanish' },
+  { code: 'fr', name: 'French' },
+  { code: 'de', name: 'German' },
+  { code: 'it', name: 'Italian' },
+  { code: 'pt', name: 'Portuguese' },
+  { code: 'nl', name: 'Dutch' },
+  { code: 'ru', name: 'Russian' },
+  { code: 'zh', name: 'Chinese' },
+  { code: 'ja', name: 'Japanese' },
+  { code: 'ko', name: 'Korean' },
+  { code: 'ar', name: 'Arabic' },
+  { code: 'hi', name: 'Hindi' },
+  { code: 'tr', name: 'Turkish' },
+  { code: 'pl', name: 'Polish' },
+  { code: 'he', name: 'Hebrew' }
 ];
 
 const LanguageSelector = ({ selectedLanguage, onLanguageChange }: LanguageSelectorProps) => {
@@ -47,7 +47,6 @@ const LanguageSelector = ({ selectedLanguage, onLanguageChange }: LanguageSelect
                 : 'bg-[#343541] text-gray-300 hover:bg-[#40414F]'
             }`}
           >
-            <span className="text-xl">{lang.flag}</span>
             <span className="text-sm font-medium">{lang.name}</span>
           </button>
         ))}
