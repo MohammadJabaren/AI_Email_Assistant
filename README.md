@@ -1,3 +1,9 @@
+This project is based on:
+- [chatbot-ollama](https://github.com/ivanfioravanti/chatbot-ollama) by Ivan Fioravanti
+- [Original work by Mckay Wrigley](https://github.com/mckaywrigley)
+- 
+
+Licensed under the MIT License.
 # Chatbot Ollama
 
 ## About
