@@ -10,7 +10,9 @@ import {
   IconLanguage,
   IconMoodSmile,
   IconBriefcase,
-  IconStar
+  IconStar,
+  IconLogin,
+  IconUserPlus
 } from '@tabler/icons-react';
 
 const features = [
@@ -76,6 +78,24 @@ const HomePage = () => {
                 <span>{action.title}</span>
               </button>
             ))}
+            
+            <div className="border-t border-gray-700 my-2"></div>
+            
+            <button
+              onClick={() => router.push('/auth/signin')}
+              className="flex items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-gray-500/10 text-white"
+            >
+              <IconLogin size={16} />
+              <span>Sign In</span>
+            </button>
+            
+            <button
+              onClick={() => router.push('/auth/signup')}
+              className="flex items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-gray-500/10 text-white"
+            >
+              <IconUserPlus size={16} />
+              <span>Sign Up</span>
+            </button>
           </div>
         </div>
 

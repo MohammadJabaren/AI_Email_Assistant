@@ -1,5 +1,7 @@
 import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SessionProvider } from 'next-auth/react';
+import { Session } from 'next-auth';
 
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
@@ -9,23 +11,31 @@ import '@/styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
-function App({ Component, pageProps }: AppProps<{}>) {
+type CustomAppProps = AppProps & {
+  pageProps: {
+    session?: Session;
+  };
+};
+
+function App({ Component, pageProps: { session, ...pageProps } }: CustomAppProps) {
   const queryClient = new QueryClient();
 
   return (
-    <div className={inter.className}>
-      <Toaster
-        toastOptions={{
-          style: {
-            maxWidth: 500,
-            wordBreak: 'break-all',
-          },
-        }}
-      />
-      <QueryClientProvider client={queryClient}>
-        <Component {...pageProps} />
-      </QueryClientProvider>
-    </div>
+    <SessionProvider session={session}>
+      <div className={inter.className}>
+        <Toaster
+          toastOptions={{
+            style: {
+              maxWidth: 500,
+              wordBreak: 'break-all',
+            },
+          }}
+        />
+        <QueryClientProvider client={queryClient}>
+          <Component {...pageProps} />
+        </QueryClientProvider>
+      </div>
+    </SessionProvider>
   );
 }
 
