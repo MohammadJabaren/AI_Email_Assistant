@@ -1,8 +1,11 @@
 #!/bin/bash
 set -e
 PROJECT_DIR="$1"
+OLLAMA_SERVICE_IP = "$2"
 NODE_BIN="/usr/bin/npm" # Adjust if needed
 UI_SERVICE="/etc/systemd/system"
+ENV_FILE="/etc/systemd/system/ui.env"
+
 
 echo "➡️ Starting Chatbot Ollama deployment..."
 #test
@@ -24,12 +27,22 @@ cd "$PROJECT_DIR"
 echo "📥 Installing frontend dependencies with npm ci..."
 $NODE_BIN ci
 
+echo "🔧 Writing OLLAMA_SERVICE_IP to $ENV_FILE"
+echo "OLLAMA_SERVICE_IP=$OLLAMA_SERVICE_IP" | sudo tee "$ENV_FILE" > /dev/null
+
 # 4. Copy and configure systemd services
 echo "⚙️ Setting up systemd services..."
 
 
 # UI service (runs `npm run dev`)
 sudo cp ui.service "$UI_SERVICE"
+
+if ! grep -q "EnvironmentFile=$ENV_FILE" "$UI_SERVICE/ui.service"; then
+  sudo sed -i "/^\[Service\]/a EnvironmentFile=$ENV_FILE" "$UI_SERVICE/ui.service"
+fi
+
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
 sudo systemctl enable ui
 sudo systemctl restart ui
 

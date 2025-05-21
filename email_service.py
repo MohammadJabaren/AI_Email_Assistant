@@ -7,6 +7,8 @@ from typing import Dict, Optional, List, Union
 from dataclasses import dataclass
 from enum import Enum
 import time
+import os
+
 
 class EmailTone(str, Enum):
     PROFESSIONAL = "professional"
@@ -25,9 +27,12 @@ class LanguageInfo:
     culturalNotes: List[str]
 
 class EmailService:
-    def __init__(self, ollama_url: str = "http://localhost:11434", debug: bool = False):
-        self.ollama_url = ollama_url
-        self.debug = debug
+    def __init__(self, ollama_url: Optional[str] = None, debug: bool = False):
+        
+ # No default, force to get from env or param
+        self.ollama_url = ollama_url or os.getenv("OLLAMA_SERVICE_IP")
+        if not self.ollama_url:
+            raise ValueError("OLLAMA_SERVICE_IP environment variable is not set") 
         self.language_map = self._initialize_language_map()
         self.action = None
 
