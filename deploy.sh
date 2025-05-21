@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 PROJECT_DIR="$1"
-OLLAMA_SERVICE_IP = "$2"
+OLLAMA_SERVICE_IP="$2"
 NODE_BIN="/usr/bin/npm" # Adjust if needed
 UI_SERVICE="/etc/systemd/system"
 ENV_FILE="/etc/systemd/system/ui.env"
