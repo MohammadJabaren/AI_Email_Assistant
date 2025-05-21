@@ -9,7 +9,7 @@ WorkingDirectory=/home/ubuntu/AI_Email_Assistant
 ExecStart=/usr/bin/npm run dev -- --hostname 0.0.0.0
 Restart=always
 Environment=PATH=/usr/bin:/usr/local/bin
-Environment=NODE_ENV=production
+Environment=NODE_ENV=development
 StandardOutput=journal
 StandardError=journal
 
