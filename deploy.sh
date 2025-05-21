@@ -9,7 +9,12 @@ echo "➡️ Starting Chatbot Ollama deployment..."
 
 if ! command -v npm &> /dev/null; then
   echo "📦 Node.js/npm not found. Please install Node.js manually before running this script."
-  exit 1
+  # Install prerequisites
+  sudo apt update
+  sudo apt install -y curl
+  # Download and run NodeSource install script (e.g., for Node.js 20)
+  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  sudo apt install -y nodejs
 fi
 
 # 2. Navigate to the project
