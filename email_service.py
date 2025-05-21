@@ -6,6 +6,7 @@ import sys
 from typing import Dict, Optional, List, Union
 from dataclasses import dataclass
 from enum import Enum
+import time
 
 class EmailTone(str, Enum):
     PROFESSIONAL = "professional"
@@ -219,7 +220,15 @@ Requirements:
     ) -> str:
         self.action = action  # Set the action type
         prompt = self.create_email_prompt(text, tone, language, previous_email)
-        return await self.generate_with_ollama(prompt)
+
+        start_time = time.time()  # ⏱ Start timing
+        result = await self.generate_with_ollama(prompt)
+        end_time = time.time()  # ⏱ End timing
+
+        elapsed = end_time - start_time
+        print(f"⏱ Prompt generation time: {elapsed:.2f} seconds")  # or return this value
+
+        return result
 
 async def main():
     parser = argparse.ArgumentParser(description='Generate or process emails using Ollama')
@@ -254,11 +263,8 @@ async def main():
         )
         
         # Output JSON response
-        response = {
-            "status": "success",
-            "result": result.strip()
-        }
-        print(json.dumps(response))
+        print(result.strip())
+
         
     except Exception as e:
         # Output error as JSON
