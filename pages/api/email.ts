@@ -65,7 +65,7 @@ export default async function handler(
 
     let result = '';
     let error = '';
-
+    console.log(pythonProcess)
     // Collect data from script
     pythonProcess.stdout.on('data', (data) => {
       result += data.toString();
