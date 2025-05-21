@@ -5,7 +5,7 @@ NODE_BIN="/usr/bin/npm" # Adjust if needed
 UI_SERVICE="/etc/systemd/system"
 
 echo "➡️ Starting Chatbot Ollama deployment..."
-
+#test
 
 if ! command -v npm &> /dev/null; then
   echo "📦 Node.js/npm not found. Please install Node.js manually before running this script."
