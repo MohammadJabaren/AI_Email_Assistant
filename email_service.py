@@ -204,7 +204,7 @@ Requirements:
             }
 
             response = requests.post(
-                f"{self.ollama_url}/api/generate",
+                f"{self.ollama_url}/api/internal/generate",
                 json=params
             )
             response.raise_for_status()
@@ -272,7 +272,7 @@ async def main():
             "result": result.strip()
         }
         print(json.dumps(response))
-        
+
     except Exception as e:
         # Output error as JSON
         error_response = {
