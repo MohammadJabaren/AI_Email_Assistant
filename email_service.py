@@ -189,7 +189,7 @@ Requirements:
         try:
                     
             params = {
-                "model": "tonyllama",  # <- use a chat-tuned model
+                "model": "tinyllama",  # <- use a chat-tuned model
                 "messages": [
                     {"role": "system", "content": "You are a helpful email assistant."},
                     {"role": "user", "content": prompt}
