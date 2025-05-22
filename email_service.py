@@ -55,23 +55,6 @@ class EmailService:
                     "Be direct but polite"
                 ]
             ),
-            'es': LanguageInfo(
-                name="Spanish (Español)",
-                formalGreeting="Estimado/a",
-                closing="Atentamente,",
-                dateFormat="DD/MM/YYYY",
-                nameFormat="{honorific} {firstName} {lastName}",
-                honorifics={
-                    "male": ["Sr.", "Dr.", "Prof."],
-                    "female": ["Sra.", "Srita.", "Dr.", "Prof."],
-                    "neutral": ["Sr.", "Dr.", "Prof."]
-                },
-                culturalNotes=[
-                    "Use titles unless explicitly asked to use first names",
-                    "Keep paragraphs concise and well-spaced",
-                    "Be direct but polite"
-                ]
-            ),
             'fr': LanguageInfo(
                 name="French (Français)",
                 formalGreeting="Cher/Chère",
@@ -90,240 +73,24 @@ class EmailService:
                     "Use proper French punctuation and spacing"
                 ]
             ),
-            'de': LanguageInfo(
-                name="German (Deutsch)",
-                formalGreeting="Sehr geehrte(r)",
-                closing="Mit freundlichen Grüßen,",
-                dateFormat="DD.MM.YYYY",
-                nameFormat="{honorific} {firstName} {lastName}",
-                honorifics={
-                    "male": ["Herr", "Dr.", "Prof."],
-                    "female": ["Frau", "Dr.", "Prof."],
-                    "neutral": ["Dr.", "Prof."]
-                },
-                culturalNotes=[
-                    "Use formal language in business context",
-                    "Be precise and structured",
-                    "Maintain professional distance",
-                    "Use proper German punctuation"
-                ]
-            ),
-            'it': LanguageInfo(
-                name="Italian (Italiano)",
-                formalGreeting="Gentile",
-                closing="Cordiali saluti,",
-                dateFormat="DD/MM/YYYY",
-                nameFormat="{honorific} {firstName} {lastName}",
-                honorifics={
-                    "male": ["Sig.", "Dott.", "Prof."],
-                    "female": ["Sig.ra", "Dott.ssa", "Prof.ssa"],
-                    "neutral": ["Dott.", "Prof."]
-                },
-                culturalNotes=[
-                    "Use formal language in business context",
-                    "Be warm but professional",
-                    "Use proper Italian punctuation",
-                    "Maintain respectful tone"
-                ]
-            ),
-            'pt': LanguageInfo(
-                name="Portuguese (Português)",
-                formalGreeting="Prezado(a)",
-                closing="Atenciosamente,",
+            'es': LanguageInfo(
+                name="Spanish (Español)",
+                formalGreeting="Estimado/a",
+                closing="Atentamente,",
                 dateFormat="DD/MM/YYYY",
                 nameFormat="{honorific} {firstName} {lastName}",
                 honorifics={
                     "male": ["Sr.", "Dr.", "Prof."],
-                    "female": ["Sra.", "Dra.", "Profa."],
-                    "neutral": ["Dr.", "Prof."]
+                    "female": ["Sra.", "Srita.", "Dr.", "Prof."],
+                    "neutral": ["Sr.", "Dr.", "Prof."]
                 },
                 culturalNotes=[
-                    "Use formal language in business context",
-                    "Be polite and respectful",
-                    "Use proper Portuguese punctuation",
-                    "Maintain professional tone"
+                    "Use titles unless explicitly asked to use first names",
+                    "Keep paragraphs concise and well-spaced",
+                    "Be direct but polite"
                 ]
             ),
-            'nl': LanguageInfo(
-                name="Dutch (Nederlands)",
-                formalGreeting="Geachte",
-                closing="Met vriendelijke groet,",
-                dateFormat="DD-MM-YYYY",
-                nameFormat="{honorific} {firstName} {lastName}",
-                honorifics={
-                    "male": ["Dhr.", "Dr.", "Prof."],
-                    "female": ["Mevr.", "Dr.", "Prof."],
-                    "neutral": ["Dr.", "Prof."]
-                },
-                culturalNotes=[
-                    "Be direct but polite",
-                    "Use formal language in business context",
-                    "Keep communication clear and concise",
-                    "Maintain professional distance"
-                ]
-            ),
-            'ru': LanguageInfo(
-                name="Russian (Русский)",
-                formalGreeting="Уважаемый(ая)",
-                closing="С уважением,",
-                dateFormat="DD.MM.YYYY",
-                nameFormat="{honorific} {firstName} {lastName}",
-                honorifics={
-                    "male": ["Господин", "Доктор", "Профессор"],
-                    "female": ["Госпожа", "Доктор", "Профессор"],
-                    "neutral": ["Доктор", "Профессор"]
-                },
-                culturalNotes=[
-                    "Use formal language in business context",
-                    "Be respectful and professional",
-                    "Use proper Russian punctuation",
-                    "Maintain formal tone"
-                ]
-            ),
-            'zh': LanguageInfo(
-                name="Chinese (中文)",
-                formalGreeting="尊敬的",
-                closing="此致",
-                dateFormat="YYYY/MM/DD",
-                nameFormat="{honorific}{lastName}{firstName}",
-                honorifics={
-                    "male": ["先生", "博士", "教授"],
-                    "female": ["女士", "博士", "教授"],
-                    "neutral": ["博士", "教授"]
-                },
-                culturalNotes=[
-                    "Use formal language in business context",
-                    "Be respectful and humble",
-                    "Use proper Chinese punctuation",
-                    "Maintain hierarchical respect"
-                ]
-            ),
-            'ja': LanguageInfo(
-                name="Japanese (日本語)",
-                formalGreeting="拝啓",
-                closing="敬具",
-                dateFormat="YYYY/MM/DD",
-                nameFormat="{lastName}{honorific} {firstName}",
-                honorifics={
-                    "male": ["様", "博士", "教授"],
-                    "female": ["様", "博士", "教授"],
-                    "neutral": ["様", "博士", "教授"]
-                },
-                culturalNotes=[
-                    "Use formal language in business context",
-                    "Be extremely polite and respectful",
-                    "Use proper Japanese punctuation",
-                    "Maintain hierarchical respect"
-                ]
-            ),
-            'ko': LanguageInfo(
-                name="Korean (한국어)",
-                formalGreeting="존경하는",
-                closing="감사합니다",
-                dateFormat="YYYY/MM/DD",
-                nameFormat="{lastName}{honorific} {firstName}",
-                honorifics={
-                    "male": ["님", "박사", "교수"],
-                    "female": ["님", "박사", "교수"],
-                    "neutral": ["님", "박사", "교수"]
-                },
-                culturalNotes=[
-                    "Use formal language in business context",
-                    "Be extremely polite and respectful",
-                    "Use proper Korean punctuation",
-                    "Maintain hierarchical respect"
-                ]
-            ),
-            'ar': LanguageInfo(
-                name="Arabic (العربية)",
-                formalGreeting="عزيزي/عزيزتي",
-                closing="مع تحياتي",
-                dateFormat="DD/MM/YYYY",
-                nameFormat="{honorific} {firstName} {lastName}",
-                honorifics={
-                    "male": ["السيد", "الدكتور", "الأستاذ"],
-                    "female": ["السيدة", "الدكتورة", "الأستاذة"],
-                    "neutral": ["الدكتور", "الأستاذ"]
-                },
-                culturalNotes=[
-                    "Use formal language in business context",
-                    "Be respectful and polite",
-                    "Use proper Arabic punctuation",
-                    "Maintain cultural sensitivity"
-                ]
-            ),
-            'hi': LanguageInfo(
-                name="Hindi (हिन्दी)",
-                formalGreeting="प्रिय",
-                closing="सादर",
-                dateFormat="DD/MM/YYYY",
-                nameFormat="{honorific} {firstName} {lastName}",
-                honorifics={
-                    "male": ["श्री", "डॉ.", "प्रो."],
-                    "female": ["श्रीमती", "डॉ.", "प्रो."],
-                    "neutral": ["डॉ.", "प्रो."]
-                },
-                culturalNotes=[
-                    "Use formal language in business context",
-                    "Be respectful and polite",
-                    "Use proper Hindi punctuation",
-                    "Maintain cultural sensitivity"
-                ]
-            ),
-            'tr': LanguageInfo(
-                name="Turkish (Türkçe)",
-                formalGreeting="Sayın",
-                closing="Saygılarımla,",
-                dateFormat="DD.MM.YYYY",
-                nameFormat="{honorific} {firstName} {lastName}",
-                honorifics={
-                    "male": ["Bay", "Dr.", "Prof."],
-                    "female": ["Bayan", "Dr.", "Prof."],
-                    "neutral": ["Dr.", "Prof."]
-                },
-                culturalNotes=[
-                    "Use formal language in business context",
-                    "Be respectful and polite",
-                    "Use proper Turkish punctuation",
-                    "Maintain professional tone"
-                ]
-            ),
-            'pl': LanguageInfo(
-                name="Polish (Polski)",
-                formalGreeting="Szanowny(a)",
-                closing="Z poważaniem,",
-                dateFormat="DD.MM.YYYY",
-                nameFormat="{honorific} {firstName} {lastName}",
-                honorifics={
-                    "male": ["Pan", "Dr.", "Prof."],
-                    "female": ["Pani", "Dr.", "Prof."],
-                    "neutral": ["Dr.", "Prof."]
-                },
-                culturalNotes=[
-                    "Use formal language in business context",
-                    "Be respectful and polite",
-                    "Use proper Polish punctuation",
-                    "Maintain professional tone"
-                ]
-            ),
-            'he': LanguageInfo(
-                name="Hebrew (עברית)",
-                formalGreeting="יקר/ה",
-                closing="בברכה,",
-                dateFormat="DD/MM/YYYY",
-                nameFormat="{honorific} {firstName} {lastName}",
-                honorifics={
-                    "male": ["מר", "ד\"ר", "פרופ'"],
-                    "female": ["גב'", "ד\"ר", "פרופ'"],
-                    "neutral": ["ד\"ר", "פרופ'"]
-                },
-                culturalNotes=[
-                    "Use formal language in business context",
-                    "Be respectful and polite",
-                    "Use proper Hebrew punctuation",
-                    "Maintain cultural sensitivity"
-                ]
-            )
+            # Add more languages as needed
         }
 
     def get_tone_instructions(self, tone: EmailTone) -> str:
@@ -345,7 +112,7 @@ class EmailService:
         if self.action == 'reply':
             if not previous_email:
                 raise ValueError("Previous email is required for reply action")
-            return f"""You are a professional email writer. Write a response to this email in {language_info.name} ONLY.
+            return f"""Write a response to this email in {language_info.name}:
 
 Original Email:
 {previous_email}
@@ -353,43 +120,39 @@ Original Email:
 Your Response Instructions:
 {text}
 
-CRITICAL REQUIREMENTS:
-1. Write the ENTIRE response in {language_info.name} ONLY - do not use any other language
-2. Do NOT use templates or placeholders
-3. Do NOT mix languages - every single word must be in {language_info.name}
+Requirements:
+1. Write a completely new response in {language_info.name} ONLY
+2. Do NOT use templates or placeholders like [Your Name] or [Date]
+3. Do NOT mix languages
 4. Do NOT copy or repeat any part of the original email
 5. Start with {language_info.formalGreeting}
 6. Acknowledge the original email's main points
-7. Provide your specific response
+7. Provide your specific response to the dinner invitation
 8. End with {language_info.closing}
 9. Keep the tone {tone_instructions}
 10. Use proper {language_info.name} grammar and punctuation
 11. Make it personal and specific to the situation
-12. If you don't know how to write something in {language_info.name}, DO NOT make it up - use simpler language you know is correct
 
-Remember: This must be a complete response written entirely in {language_info.name}."""
+Remember: This should be a new response, not a template or modification of the original."""
 
         elif self.action == 'summarize':
             if not previous_email:
                 raise ValueError("Previous email is required for summarize action")
-            return f"""You are a professional email summarizer. Summarize the following email in {language_info.name} ONLY.
+            return f"""Summarize the following email in {language_info.name}:
 
 {previous_email}
 
-CRITICAL REQUIREMENTS:
-1. Write the ENTIRE summary in {language_info.name} ONLY
-2. Provide 2–3 concise bullet points
-3. Focus only on the main points and actions
-4. Exclude greetings, sign-offs, and extra details
-5. Keep the total summary under 50 words
-6. Be clear and direct
-7. Do NOT use any other language - every word must be in {language_info.name}
-8. Use proper {language_info.name} grammar and punctuation"""
+Instructions:
+- Provide 2–3 concise bullet points
+- Focus only on the main points and actions
+- Exclude greetings, sign-offs, and extra details
+- Keep the total summary under 50 words
+- Be clear and direct"""
 
         elif self.action == 'enhance':
             if not previous_email:
                 raise ValueError("Previous email is required for enhance action")
-            return f"""You are a professional email enhancer. Enhance this email in {language_info.name} ONLY.
+            return f"""Enhance this email in {language_info.name}:
 
 Original Email:
 {previous_email}
@@ -397,38 +160,30 @@ Original Email:
 Enhancement Instructions:
 {text}
 
-CRITICAL REQUIREMENTS:
-1. Write the ENTIRE enhanced email in {language_info.name} ONLY
-2. Keep the same main message and intent
-3. Improve the language and structure
-4. Make it more professional and polished
-5. Use proper {language_info.name} grammar and punctuation
-6. Keep the tone {tone_instructions}
-7. Start with {language_info.formalGreeting}
-8. End with {language_info.closing}
-9. Do NOT change the core message or add new information
-10. Do NOT use any other language - every word must be in {language_info.name}
+Requirements:
+1. Keep the same main message and intent
+2. Improve the language and structure
+3. Make it more professional and polished
+4. Use proper {language_info.name} grammar and punctuation
+5. Keep the tone {tone_instructions}
+6. Start with {language_info.formalGreeting}
+7. End with {language_info.closing}
+8. Do NOT change the core message or add new information
 
-Remember: This must be an enhanced version written entirely in {language_info.name}."""
+Remember: This should be an enhanced version of the original email, maintaining its main points but improving its presentation."""
 
         else:  # write action
-            return f"""You are a professional email writer. Write a new email in {language_info.name} ONLY.
-
+            return f"""Write a new email in {language_info.name}:
 Content: {text}
 Style: {tone_instructions}
 Greeting: {language_info.formalGreeting}
 Closing: {language_info.closing}
-
-CRITICAL REQUIREMENTS:
-1. Write the ENTIRE email in {language_info.name} ONLY
+Requirements:
+1. Write a complete email in {language_info.name} ONLY
 2. Do NOT use templates or placeholders
 3. Include proper greeting and closing
 4. Keep it professional and clear
-5. Use proper {language_info.name} grammar and punctuation
-6. Do NOT use any other language - every word must be in {language_info.name}
-7. If you don't know how to write something in {language_info.name}, DO NOT make it up - use simpler language you know is correct
-
-Remember: This must be a complete email written entirely in {language_info.name}."""
+5. Use proper grammar and punctuation"""
 
     async def generate_with_ollama(self, prompt: str) -> str:
         try:
