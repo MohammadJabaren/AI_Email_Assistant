@@ -210,7 +210,7 @@ Requirements:
             )
             response.raise_for_status()
             data = response.json()
-            
+            print(data)
             return data.get("response", "").strip()
         except Exception as e:
             raise Exception(f"Failed to generate email: {str(e)}")
