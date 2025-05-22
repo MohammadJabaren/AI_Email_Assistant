@@ -31,16 +31,10 @@ export default async function handler(
       return;
     }
 
-    // Validate based on action type
-    switch (action) {
-      case 'reply':
-      case 'enhance':
-      case 'summarize':
-        if (!previousEmail) {
-          res.status(400).json({ result: 'Previous email is required for this action' });
-          return;
-        }
-        break;
+    // For reply, enhance, and summarize actions, we need the previous email
+    if (['reply', 'enhance', 'summarize'].includes(action) && !previousEmail) {
+      res.status(400).json({ result: 'Previous email is required for this action' });
+      return;
     }
 
     // Call Python script with all parameters
@@ -50,7 +44,7 @@ export default async function handler(
       '--text', text,
       '--tone', tone,
       '--language', language,
-      ...(previousEmail ? ['--previous-email', previousEmail] : [])
+      '--previous-email', previousEmail || ''  // Pass empty string if no previous email
     ]);
 
     let result = '';
@@ -72,7 +66,7 @@ export default async function handler(
           try {
             const response = JSON.parse(result);
             if (response.status === 'error') {
-              resolve(response.error || 'An error occurred');
+              reject(new Error(response.error || 'An error occurred'));
             } else {
               resolve(response.result);
             }
@@ -80,7 +74,7 @@ export default async function handler(
             resolve(result.trim());
           }
         } else {
-          resolve(error.trim() || 'An error occurred');
+          reject(new Error(error.trim() || 'An error occurred'));
         }
       });
     });
