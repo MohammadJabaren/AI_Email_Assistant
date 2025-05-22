@@ -22,7 +22,7 @@ fi
 
 # 2. Navigate to the project
 cd "$PROJECT_DIR"
-
+#test
 # 3. Install NPM dependencies
 echo "📥 Installing frontend dependencies with npm ci..."
 $NODE_BIN ci
