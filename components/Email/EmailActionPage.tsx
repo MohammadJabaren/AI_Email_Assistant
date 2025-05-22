@@ -32,6 +32,8 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [showToneSelector, setShowToneSelector] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<string>('');
   const router = useRouter();
 
   // Get current chat's tone and language or default values
@@ -140,7 +142,24 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
       }
 
       const data = await response.json();
-      setResult(data.result);
+      
+      // Add the new message to the chat
+      if (currentChatId) {
+        setChats(prevChats => prevChats.map(chat => {
+          if (chat.id === currentChatId) {
+            return {
+              ...chat,
+              messages: [
+                ...chat.messages,
+                { role: 'user', content: input },
+                { role: 'assistant', content: data.result }
+              ]
+            };
+          }
+          return chat;
+        }));
+        setInput(''); // Clear the input after successful submission
+      }
     } catch (error: any) {
       setError(error.message || 'An error occurred');
     } finally {
