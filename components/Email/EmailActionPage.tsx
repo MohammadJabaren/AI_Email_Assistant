@@ -156,49 +156,87 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
         .pop()?.content;
 
       // For reply, enhance, and summarize actions, we need the previous email
-      if (['reply', 'enhance', 'summarize'].includes(action) && !lastAssistantMessage) {
-        setError('Please wait for a response before using this action');
-        setLoading(false);
-        return;
-      }
+      if (['reply', 'enhance', 'summarize'].includes(action)) {
+        // If there's no previous message, use the current input as the previous email
+        const previousEmail = lastAssistantMessage || input;
+        
+        const response = await fetch('/api/email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action,
+            text: input,
+            tone: currentTone,
+            language: currentLanguage,
+            previousEmail: previousEmail,
+          }),
+        });
 
-      const response = await fetch('/api/email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action,
-          text: input,
-          tone: currentTone,
-          language: currentLanguage,
-          previousEmail: lastAssistantMessage,
-        }),
-      });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.result || 'Failed to get response');
+        }
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.result || 'Failed to get response');
-      }
+        const data = await response.json();
+        
+        // Add the new message to the chat
+        if (currentChatId) {
+          setChats(prevChats => prevChats.map(chat => {
+            if (chat.id === currentChatId) {
+              return {
+                ...chat,
+                messages: [
+                  ...chat.messages,
+                  { role: 'user', content: input },
+                  { role: 'assistant', content: data.result }
+                ]
+              };
+            }
+            return chat;
+          }));
+          setInput(''); // Clear the input after successful submission
+        }
+      } else {
+        // For write action, proceed normally
+        const response = await fetch('/api/email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action,
+            text: input,
+            tone: currentTone,
+            language: currentLanguage,
+          }),
+        });
 
-      const data = await response.json();
-      
-      // Add the new message to the chat
-      if (currentChatId) {
-        setChats(prevChats => prevChats.map(chat => {
-          if (chat.id === currentChatId) {
-            return {
-              ...chat,
-              messages: [
-                ...chat.messages,
-                { role: 'user', content: input },
-                { role: 'assistant', content: data.result }
-              ]
-            };
-          }
-          return chat;
-        }));
-        setInput(''); // Clear the input after successful submission
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.result || 'Failed to get response');
+        }
+
+        const data = await response.json();
+        
+        // Add the new message to the chat
+        if (currentChatId) {
+          setChats(prevChats => prevChats.map(chat => {
+            if (chat.id === currentChatId) {
+              return {
+                ...chat,
+                messages: [
+                  ...chat.messages,
+                  { role: 'user', content: input },
+                  { role: 'assistant', content: data.result }
+                ]
+              };
+            }
+            return chat;
+          }));
+          setInput(''); // Clear the input after successful submission
+        }
       }
     } catch (error: any) {
       setError(error.message || 'An error occurred');
