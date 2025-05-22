@@ -48,14 +48,21 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
   useEffect(() => {
     const savedChats = localStorage.getItem(`email-${action}-chats`);
     if (savedChats) {
-      const parsedChats = JSON.parse(savedChats);
-      setChats(parsedChats);
-      // Set the most recent chat as current if no chat is selected
-      if (!currentChatId && parsedChats.length > 0) {
-        setCurrentChatId(parsedChats[0].id);
+      try {
+        const parsedChats = JSON.parse(savedChats);
+        if (Array.isArray(parsedChats) && parsedChats.length > 0) {
+          setChats(parsedChats);
+          setCurrentChatId(parsedChats[0].id);
+        } else {
+          // If no valid chats exist, create a new one
+          createNewChat();
+        }
+      } catch (error) {
+        console.error('Error parsing saved chats:', error);
+        createNewChat();
       }
     } else {
-      // Create a new chat if none exist
+      // If no saved chats exist, create a new one
       createNewChat();
     }
   }, [action]);
@@ -79,7 +86,7 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
     const newChat: Chat = {
       id: Date.now().toString(),
       title: `New ${title} ${new Date().toLocaleString()}`,
-      messages: [], // Ensure this is initialized as an empty array
+      messages: [],
       createdAt: new Date().toISOString(),
       tone: 'professional',
       language: 'en'
@@ -132,6 +139,11 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
     setError(null);
 
     try {
+      // If there's no active chat, create one
+      if (!currentChatId) {
+        createNewChat();
+      }
+
       // Get the current chat
       const currentChat = chats.find(c => c.id === currentChatId);
       if (!currentChat) {
@@ -160,7 +172,7 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
           text: input,
           tone: currentTone,
           language: currentLanguage,
-          previousEmail: lastAssistantMessage, // Use the last assistant message
+          previousEmail: lastAssistantMessage,
         }),
       });
 
