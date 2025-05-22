@@ -34,20 +34,10 @@ export default async function handler(
     // Validate based on action type
     switch (action) {
       case 'reply':
-        if (!previousEmail) {
-          res.status(400).json({ result: 'Previous email is required for reply action' });
-          return;
-        }
-        break;
       case 'enhance':
-        if (!previousEmail) {
-          res.status(400).json({ result: 'Previous email is required for enhance action' });
-          return;
-        }
-        break;
       case 'summarize':
         if (!previousEmail) {
-          res.status(400).json({ result: 'Previous email is required for summarize action' });
+          res.status(400).json({ result: 'Previous email is required for this action' });
           return;
         }
         break;
@@ -65,7 +55,7 @@ export default async function handler(
 
     let result = '';
     let error = '';
-    console.log(pythonProcess)
+
     // Collect data from script
     pythonProcess.stdout.on('data', (data) => {
       result += data.toString();

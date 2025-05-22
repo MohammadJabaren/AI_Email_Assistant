@@ -44,20 +44,10 @@ export async function POST(request: Request) {
   }
 }
 
-// Handle GET requests with a clear error message
+// Remove the GET handler since we're handling it in middleware
 export async function GET() {
   return NextResponse.json(
-    { 
-      error: 'Method not allowed',
-      message: 'This endpoint only accepts POST requests',
-      timestamp: new Date().toISOString(),
-    },
-    { 
-      status: 405,
-      headers: {
-        'Allow': 'POST',
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-      }
-    }
+    { error: 'Method not allowed' },
+    { status: 405 }
   );
 } 

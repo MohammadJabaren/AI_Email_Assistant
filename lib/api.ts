@@ -1,7 +1,7 @@
 export async function generateResponse(prompt: string) {
+  console.log('Making API call to /api/generate');
+  
   try {
-    console.log('Sending request to /api/generate with prompt:', prompt);
-    
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: {
