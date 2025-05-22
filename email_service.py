@@ -268,12 +268,7 @@ async def main():
             previous_email=args.previous_email
         )
         
-        # Output JSON response
-        response = {
-            "status": "success",
-            "result": result.strip()
-        }
-        print(response.strip())
+        print(result.strip())
 
     except Exception as e:
         # Output error as JSON
