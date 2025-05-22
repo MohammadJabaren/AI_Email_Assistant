@@ -234,7 +234,7 @@ Requirements:
         elapsed = end_time - start_time
         print(f"⏱ Prompt generation time: {elapsed:.2f} seconds")  # or return this value
 
-        return result
+        return result.strip()
 
 async def main():
     parser = argparse.ArgumentParser(description='Generate or process emails using Ollama')
