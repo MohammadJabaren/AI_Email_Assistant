@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { IconSend, IconHome, IconPlus, IconTrash, IconSettings, IconLanguage } from '@tabler/icons-react';
+import { IconSend, IconHome, IconPlus, IconTrash, IconSettings, IconLanguage, IconMessage } from '@tabler/icons-react';
 import Sidebar from '../Sidebar/Sidebar';
 import { ChatMessage } from '../Chat/ChatMessage';
 import { useRouter } from 'next/router';
 import ToneSelector, { EmailTone } from './ToneSelector';
 import LanguageSelector, { languages } from './LanguageSelector';
+import { useSession } from 'next-auth/react';
 
 interface Chat {
   id: string;
@@ -278,35 +279,37 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
       <Head>
         <title>{title} - AI Email Assistant</title>
       </Head>
-      <div className="flex h-screen">
-        <div className="fixed top-0 left-0 z-40 flex h-full w-[260px] flex-none flex-col bg-[#202123] p-2 text-[14px]">
+      <div className="flex h-screen bg-gradient-to-br from-gray-900 to-gray-800">
+        {/* Sidebar */}
+        <div className="fixed top-0 left-0 z-40 flex h-full w-[280px] flex-none flex-col bg-[#1a1b1e] p-4 text-[14px] shadow-xl">
           {/* New Chat Button */}
           <button
             onClick={createNewChat}
-            className="flex items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-gray-500/10 text-white border border-white/20 mb-4"
+            className="flex items-center gap-3 rounded-lg p-3 text-sm transition-all duration-200 hover:bg-blue-600/20 text-white border border-white/10 mb-6 hover:scale-105 active:scale-95"
           >
-            <IconPlus size={16} />
+            <IconPlus size={18} className="text-blue-400" />
             <span>New Chat</span>
           </button>
 
           {/* Chat History */}
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto space-y-2">
             {chats.map((chat) => (
               <div
                 key={chat.id}
-                className={`group flex items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-gray-500/10 text-white w-full mb-2 ${
-                  currentChatId === chat.id ? 'bg-gray-500/10' : ''
+                className={`group flex items-center gap-3 rounded-lg p-3 text-sm transition-all duration-200 hover:bg-gray-700/50 text-white w-full ${
+                  currentChatId === chat.id ? 'bg-gray-700/50 ring-1 ring-blue-500/50' : ''
                 }`}
               >
                 <button
                   onClick={() => selectChat(chat.id)}
-                  className="flex-1 text-left truncate"
+                  className="flex-1 text-left truncate flex items-center gap-2"
                 >
+                  <IconMessage size={16} className="text-gray-400" />
                   <span className="truncate">{chat.title}</span>
                 </button>
                 <button
                   onClick={(e) => deleteChat(chat.id, e)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-gray-500/20 rounded"
+                  className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-red-500/20 rounded-full hover:text-red-400"
                   title="Delete chat"
                 >
                   <IconTrash size={16} />
@@ -318,74 +321,90 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
           {/* Return Home Button */}
           <button
             onClick={() => router.push('/')}
-            className="flex items-center justify-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-blue-600 text-white bg-blue-500 mt-4 w-full"
+            className="flex items-center justify-center gap-3 rounded-lg p-3 text-sm transition-all duration-200 hover:bg-blue-600 text-white bg-blue-500/20 hover:bg-blue-500 mt-4 w-full hover:scale-105 active:scale-95"
           >
-            <IconHome size={16} />
+            <IconHome size={18} />
             <span>Return to Home</span>
           </button>
         </div>
         
-        <main className="flex-1 overflow-hidden bg-[#343541] ml-[260px]">
+        <main className="flex-1 overflow-hidden ml-[280px]">
           <div className="flex h-full flex-col">
             {/* Header with Tone and Language Selectors */}
-            <div className="border-b border-white/20 p-4 flex justify-between items-center">
-              <h2 className="text-lg font-medium text-white">{title}</h2>
+            <div className="border-b border-white/10 p-4 flex justify-between items-center bg-[#1a1b1e]/50 backdrop-blur-sm">
+              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                <IconMessage size={24} className="text-blue-400" />
+                {title}
+              </h2>
               <div className="flex items-center gap-3">
                 {action !== 'summarize' && (
                   <button
                     onClick={() => setShowToneSelector(!showToneSelector)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#2A2B32] text-white hover:bg-[#40414F] transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800/50 text-white hover:bg-gray-700/50 transition-all duration-200 hover:scale-105 active:scale-95"
                   >
-                    <IconSettings size={16} />
+                    <IconSettings size={18} className="text-blue-400" />
                     <span>Tone: {currentTone.charAt(0).toUpperCase() + currentTone.slice(1)}</span>
                   </button>
                 )}
                 <button
                   onClick={() => setShowLanguageSelector(!showLanguageSelector)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#2A2B32] text-white hover:bg-[#40414F] transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800/50 text-white hover:bg-gray-700/50 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
-                  <IconLanguage size={16} />
+                  <IconLanguage size={18} className="text-blue-400" />
                   <span>{currentLanguageName}</span>
                 </button>
               </div>
             </div>
 
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {currentChatId && chats.find(c => c.id === currentChatId)?.messages.map((message, index) => (
                 <div
                   key={`${currentChatId}-${index}`}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-4 ${
+                    className={`max-w-[80%] rounded-2xl p-4 shadow-lg ${
                       message.role === 'user'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-[#2A2B32] text-white'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-800 text-white'
                     }`}
                   >
-                    <div className="text-sm mb-1 opacity-70">
-                      {message.role === 'user' ? 'You' : 'AI Assistant'}
+                    <div className="text-sm mb-2 opacity-70 flex items-center gap-2">
+                      {message.role === 'user' ? (
+                        <>
+                          <span className="w-2 h-2 bg-white rounded-full"></span>
+                          You
+                        </>
+                      ) : (
+                        <>
+                          <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                          AI Assistant
+                        </>
+                      )}
                     </div>
-                    <div className="whitespace-pre-wrap">{message.content}</div>
+                    <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
                   </div>
                 </div>
               ))}
               {loading && (
-                <div className="flex justify-start">
-                  <div className="max-w-[80%] rounded-lg p-4 bg-[#2A2B32] text-white">
-                    <div className="text-sm mb-1 opacity-70">AI Assistant</div>
+                <div className="flex justify-start animate-fade-in">
+                  <div className="max-w-[80%] rounded-2xl p-4 bg-gray-800 text-white shadow-lg">
+                    <div className="text-sm mb-2 opacity-70 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                      AI Assistant
+                    </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                     </div>
                   </div>
                 </div>
               )}
               {error && (
-                <div className="flex justify-center">
-                  <div className="max-w-[80%] rounded-lg p-4 bg-red-500 text-white">
+                <div className="flex justify-center animate-fade-in">
+                  <div className="max-w-[80%] rounded-2xl p-4 bg-red-500/20 text-red-400 border border-red-500/50 shadow-lg">
                     {error}
                   </div>
                 </div>
@@ -393,23 +412,23 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
             </div>
 
             {/* Input Area */}
-            <div className="border-t border-white/20 p-4">
+            <div className="border-t border-white/10 p-4 bg-[#1a1b1e]/50 backdrop-blur-sm">
               <form onSubmit={handleSubmit} className="flex items-center gap-4">
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={placeholder}
-                  className="flex-1 bg-[#40414F] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="flex-1 bg-gray-800/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none transition-all duration-200"
                   rows={3}
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || loading}
-                  className={`p-3 rounded-lg ${
+                  className={`p-4 rounded-xl transition-all duration-200 ${
                     !input.trim() || loading
-                      ? 'bg-gray-500 cursor-not-allowed'
-                      : 'bg-blue-500 hover:bg-blue-600'
-                  } text-white transition-colors`}
+                      ? 'bg-gray-700 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-500 hover:scale-105 active:scale-95'
+                  } text-white`}
                 >
                   {loading ? (
                     <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -422,14 +441,14 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
 
             {/* Tone Selector Modal */}
             {showToneSelector && (
-              <div className="absolute bottom-24 right-4 bg-[#2A2B32] rounded-lg shadow-lg border border-white/20">
+              <div className="absolute bottom-24 right-4 bg-gray-800 rounded-xl shadow-2xl border border-white/10 animate-fade-in">
                 <ToneSelector selectedTone={currentTone} onToneChange={handleToneChange} />
               </div>
             )}
 
             {/* Language Selector Modal */}
             {showLanguageSelector && (
-              <div className="absolute bottom-24 right-4 bg-[#2A2B32] rounded-lg shadow-lg border border-white/20">
+              <div className="absolute bottom-24 right-4 bg-gray-800 rounded-xl shadow-2xl border border-white/10 animate-fade-in">
                 <LanguageSelector selectedLanguage={currentLanguage} onLanguageChange={handleLanguageChange} />
               </div>
             )}
