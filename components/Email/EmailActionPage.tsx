@@ -260,73 +260,49 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
 
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {currentChatId ? (
-                <>
-                  {chats.find(c => c.id === currentChatId)?.messages.map((message, index) => {
-                    console.log('Rendering message:', { index, message });
-                    return (
-                      <div
-                        key={`${currentChatId}-${index}`}
-                        className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-[80%] rounded-lg p-4 ${
-                            message.role === 'user'
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-[#2A2B32] text-white border border-white/20'
-                          }`}
-                        >
-                          <div className="text-sm mb-1 opacity-70">
-                            {message.role === 'user' ? 'You' : 'AI Assistant'}
-                          </div>
-                          <div className="whitespace-pre-wrap">{message.content}</div>
-                          {message.role === 'assistant' && (
-                            <div className="mt-3 flex items-center gap-2 text-sm">
-                              <button
-                                onClick={() => {
-                                  setInput(`Enhance this email by `);
-                                }}
-                                className="px-2 py-1 rounded bg-blue-500 hover:bg-blue-600 transition-colors text-white text-xs"
-                              >
-                                Enhance
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setInput(`Modify this email to include `);
-                                }}
-                                className="px-2 py-1 rounded bg-blue-500 hover:bg-blue-600 transition-colors text-white text-xs"
-                              >
-                                Modify
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {loading && (
-                    <div className="flex justify-start">
-                      <div className="max-w-[80%] rounded-lg p-4 bg-[#2A2B32] text-white border border-white/20">
-                        <div className="text-sm mb-1 opacity-70">AI Assistant</div>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                          <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                          <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                        </div>
-                      </div>
+              {currentChatId && chats.find(c => c.id === currentChatId)?.messages.map((message, index) => (
+                <div
+                  key={`${currentChatId}-${index}`}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-lg p-4 ${
+                      message.role === 'user'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-[#2A2B32] text-white'
+                    }`}
+                  >
+                    <div className="text-sm mb-1 opacity-70">
+                      {message.role === 'user' ? 'You' : 'AI Assistant'}
                     </div>
-                  )}
-                </>
-              ) : (
-                <div className="flex items-center justify-center h-full text-white opacity-50">
-                  Start a new conversation or select a chat from the sidebar
+                    <div className="whitespace-pre-wrap">{message.content}</div>
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="max-w-[80%] rounded-lg p-4 bg-[#2A2B32] text-white">
+                    <div className="text-sm mb-1 opacity-70">AI Assistant</div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {error && (
+                <div className="flex justify-center">
+                  <div className="max-w-[80%] rounded-lg p-4 bg-red-500 text-white">
+                    {error}
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Input Area */}
             <div className="border-t border-white/20 p-4">
-              <div className="flex items-center gap-4">
+              <form onSubmit={handleSubmit} className="flex items-center gap-4">
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -335,7 +311,7 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
                   rows={3}
                 />
                 <button
-                  onClick={handleSubmit}
+                  type="submit"
                   disabled={!input.trim() || loading}
                   className={`p-3 rounded-lg ${
                     !input.trim() || loading
@@ -349,7 +325,7 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
                     <IconSend size={24} />
                   )}
                 </button>
-              </div>
+              </form>
             </div>
 
             {/* Tone Selector Modal */}
