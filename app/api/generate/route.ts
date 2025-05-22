@@ -8,18 +8,40 @@ export async function POST(request: Request) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
       },
       body: JSON.stringify(body),
+      cache: 'no-store',
     });
+
+    if (!response.ok) {
+      throw new Error(`Ollama service responded with status: ${response.status}`);
+    }
 
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to generate response' }, { status: 500 });
+    console.error('Generate API error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to generate response' },
+      { status: 500 }
+    );
   }
 }
 
-// Explicitly prevent GET requests
+// Explicitly prevent GET requests with a more detailed error
 export async function GET() {
-  return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
+  return NextResponse.json(
+    { 
+      error: 'Method not allowed',
+      message: 'This endpoint only accepts POST requests'
+    },
+    { 
+      status: 405,
+      headers: {
+        'Allow': 'POST',
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+      }
+    }
+  );
 } 
