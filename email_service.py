@@ -6,9 +6,8 @@ import sys
 from typing import Dict, Optional, List, Union
 from dataclasses import dataclass
 from enum import Enum
-import time
 import os
-
+import time
 
 class EmailTone(str, Enum):
     PROFESSIONAL = "professional"
@@ -28,11 +27,11 @@ class LanguageInfo:
 
 class EmailService:
     def __init__(self, ollama_url: Optional[str] = None, debug: bool = False):
-        
- # No default, force to get from env or param
+
         self.ollama_url = ollama_url or os.getenv("OLLAMA_SERVICE_IP")
         if not self.ollama_url:
             raise ValueError("OLLAMA_SERVICE_IP environment variable is not set") 
+        self.debug = debug
         self.language_map = self._initialize_language_map()
         self.action = None
 
@@ -187,22 +186,30 @@ Requirements:
 
     async def generate_with_ollama(self, prompt: str) -> str:
         try:
-                    
             params = {
-                "model": "tinyllama",  # <- use a chat-tuned model
-                "messages": [
-                    {"role": "system", "content": "You are a helpful email assistant."},
-                    {"role": "user", "content": prompt}
-                ],
-                "stream": False
+                "model": "tinyllama",
+                "prompt": prompt,
+                "stream": False,
+                "max_tokens": 250,
+                "temperature": 0.8,
+                "top_p": 0.9,
+                "top_k": 40,
+                "repeat_penalty": 1.2,
+                "stop": ["</email>", "---", "[Your", "[Company", "[Email", "[Today's"],
+                "num_predict": 150,
+                "num_ctx": 512,
+                "num_thread": 8,
+                "num_gpu": 1,
+                "seed": None
             }
 
             response = requests.post(
-                f"{self.ollama_url}/api/chat",
+                f"{self.ollama_url}/api/generate",
                 json=params
             )
             response.raise_for_status()
             data = response.json()
+            
             return data.get("response", "").strip()
         except Exception as e:
             raise Exception(f"Failed to generate email: {str(e)}")
@@ -260,8 +267,11 @@ async def main():
         )
         
         # Output JSON response
-        print(result.strip())
-
+        response = {
+            "status": "success",
+            "result": result.strip()
+        }
+        print(json.dumps(response))
         
     except Exception as e:
         # Output error as JSON
