@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
+  console.log('Received POST request to /api/generate');
+  
   try {
     const body = await request.json();
+    
+    console.log('Making request to Ollama service:', process.env.OLLAMA_SERVICE_IP);
     
     const response = await fetch(`${process.env.OLLAMA_SERVICE_IP}/api/generate`, {
       method: 'POST',
@@ -15,6 +19,7 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
+      console.error('Ollama service error:', response.status, response.statusText);
       throw new Error(`Ollama service responded with status: ${response.status}`);
     }
 
@@ -23,18 +28,25 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Generate API error:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to generate response' },
+      { 
+        error: error instanceof Error ? error.message : 'Failed to generate response',
+        timestamp: new Date().toISOString(),
+      },
       { status: 500 }
     );
   }
 }
 
-// Explicitly prevent GET requests with a more detailed error
-export async function GET() {
+// Log all GET requests to help debug
+export async function GET(request: Request) {
+  console.log('Received GET request to /api/generate');
+  console.log('Request headers:', Object.fromEntries(request.headers.entries()));
+  
   return NextResponse.json(
     { 
       error: 'Method not allowed',
-      message: 'This endpoint only accepts POST requests'
+      message: 'This endpoint only accepts POST requests',
+      timestamp: new Date().toISOString(),
     },
     { 
       status: 405,
