@@ -204,14 +204,15 @@ Requirements:
                 "seed": None
             }
 
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    f"{self.ollama_url}/api/generate",
-                    json=params
-                ) as response:
-                    response.raise_for_status()
-                    data = await response.json()
-                    return data.get("response", "").strip()
+                
+            response = requests.post(
+                f"{self.ollama_url}/api/generate",
+                json=params
+            )
+            response.raise_for_status()
+            data = await response.json() 
+            return data.get("response", "").strip()
+    
         except Exception as e:
             raise Exception(f"Failed to generate email: {str(e)}")
 
