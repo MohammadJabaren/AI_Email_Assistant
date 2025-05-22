@@ -1,5 +1,5 @@
-import { IconFolderPlus, IconMistOff, IconPlus } from '@tabler/icons-react';
-import { ReactNode } from 'react';
+import { IconFolderPlus, IconMistOff, IconPlus, IconSearch, IconChevronDown, IconChevronRight } from '@tabler/icons-react';
+import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -41,6 +41,7 @@ const Sidebar = <T,>({
   handleDrop,
 }: Props<T>) => {
   const { t } = useTranslation('promptbar');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const allowDrop = (e: any) => {
     e.preventDefault();
@@ -57,43 +58,57 @@ const Sidebar = <T,>({
   return isOpen ? (
     <div>
       <div
-        className={`fixed top-0 ${side}-0 z-40 flex h-full w-[260px] flex-none flex-col space-y-2 bg-[#202123] p-2 text-[14px] transition-all sm:relative sm:top-0`}
+        className={`fixed top-0 ${side}-0 z-40 flex h-full w-[280px] flex-none flex-col space-y-4 bg-[#1a1b1e] p-4 text-[14px] transition-all duration-300 ease-in-out shadow-xl sm:relative sm:top-0`}
       >
-        <div className="flex items-center">
+        {/* Header Section */}
+        <div className="flex items-center gap-2">
           <button
-            className="text-sidebar flex w-[190px] flex-shrink-0 cursor-pointer select-none items-center gap-3 rounded-md border border-white/20 p-3 text-white transition-colors duration-200 hover:bg-gray-500/10"
+            className="flex-1 flex items-center gap-3 rounded-lg p-3 text-sm transition-all duration-200 hover:bg-blue-600/20 text-white border border-white/10 hover:scale-105 active:scale-95"
             onClick={() => {
               handleCreateItem();
               handleSearchTerm('');
             }}
           >
-            <IconPlus size={16} />
+            <IconPlus size={18} className="text-blue-400" />
             {addItemButtonTitle}
           </button>
 
           <button
-            className="ml-2 flex flex-shrink-0 cursor-pointer items-center gap-3 rounded-md border border-white/20 p-3 text-sm text-white transition-colors duration-200 hover:bg-gray-500/10"
+            className="flex items-center justify-center p-3 rounded-lg transition-all duration-200 hover:bg-blue-600/20 text-white border border-white/10 hover:scale-105 active:scale-95"
             onClick={handleCreateFolder}
+            title="Create Folder"
           >
-            <IconFolderPlus size={16} />
+            <IconFolderPlus size={18} className="text-blue-400" />
           </button>
         </div>
-        <Search
-          placeholder={t('Search...') || ''}
-          searchTerm={searchTerm}
-          onSearch={handleSearchTerm}
-        />
 
-        <div className="flex-grow overflow-auto">
+        {/* Search Section */}
+        <div className={`relative transition-all duration-200 ${isSearchFocused ? 'scale-105' : ''}`}>
+          <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+            <IconSearch size={16} className="text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder={t('Search...') || ''}
+            value={searchTerm}
+            onChange={(e) => handleSearchTerm(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
+            className="w-full pl-10 pr-4 py-2.5 bg-gray-800/50 text-white rounded-lg border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+          />
+        </div>
+
+        {/* Content Section */}
+        <div className="flex-grow overflow-auto space-y-4">
           {items?.length > 0 && (
-            <div className="flex border-b border-white/20 pb-2">
+            <div className="flex border-b border-white/10 pb-4">
               {folderComponent}
             </div>
           )}
 
           {items?.length > 0 ? (
             <div
-              className="pt-2"
+              className="pt-2 space-y-2"
               onDrop={handleDrop}
               onDragOver={allowDrop}
               onDragEnter={highlightDrop}
@@ -102,15 +117,21 @@ const Sidebar = <T,>({
               {itemComponent}
             </div>
           ) : (
-            <div className="mt-8 select-none text-center text-white opacity-50">
-              <IconMistOff className="mx-auto mb-3" />
+            <div className="mt-8 select-none text-center text-white opacity-50 animate-fade-in">
+              <IconMistOff className="mx-auto mb-3 text-gray-400" size={32} />
               <span className="text-[14px] leading-normal">
                 {t('No data.')}
               </span>
             </div>
           )}
         </div>
-        {footerComponent}
+
+        {/* Footer Section */}
+        {footerComponent && (
+          <div className="border-t border-white/10 pt-4">
+            {footerComponent}
+          </div>
+        )}
       </div>
 
       <CloseSidebarButton onClick={toggleOpen} side={side} />
