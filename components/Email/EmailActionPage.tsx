@@ -6,6 +6,7 @@ import { ChatMessage } from '../Chat/ChatMessage';
 import { useRouter } from 'next/router';
 import ToneSelector, { EmailTone } from './ToneSelector';
 import LanguageSelector, { languages } from './LanguageSelector';
+import { useSession } from 'next-auth/react';
 
 interface Chat {
   id: string;
@@ -35,6 +36,7 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string>('');
   const router = useRouter();
+  const { data: session } = useSession();
 
   // Get current chat's tone and language or default values
   const currentTone = currentChatId 
@@ -44,104 +46,157 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
     ? chats.find(c => c.id === currentChatId)?.language || 'en'
     : 'en';
 
-  // Load chats from localStorage on component mount
+  // Load chats from database on component mount
   useEffect(() => {
-    const savedChats = localStorage.getItem(`email-${action}-chats`);
-    if (savedChats) {
-      try {
-        const parsedChats = JSON.parse(savedChats);
-        if (Array.isArray(parsedChats) && parsedChats.length > 0) {
-          setChats(parsedChats);
-          setCurrentChatId(parsedChats[0].id);
-        } else {
-          // If no valid chats exist, create a new one
-          createNewChat();
-        }
-      } catch (error) {
-        console.error('Error parsing saved chats:', error);
+    if (session?.user) {
+      fetchChats();
+    }
+  }, [session, action]);
+
+  const fetchChats = async () => {
+    try {
+      const response = await fetch(`/api/chats?type=${action}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch chats');
+      }
+      const data = await response.json();
+      if (data.chats && data.chats.length > 0) {
+        setChats(data.chats);
+        setCurrentChatId(data.chats[0].id);
+      } else {
         createNewChat();
       }
-    } else {
-      // If no saved chats exist, create a new one
+    } catch (error) {
+      console.error('Error fetching chats:', error);
       createNewChat();
     }
-  }, [action]);
-
-  // Save chats to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem(`email-${action}-chats`, JSON.stringify(chats));
-  }, [chats, action]);
-
-  // Add this useEffect to monitor chat changes
-  useEffect(() => {
-    console.log('Current Chat:', currentChatId);
-    console.log('All Chats:', chats);
-    if (currentChatId) {
-      const currentChat = chats.find(c => c.id === currentChatId);
-      console.log('Current Chat Messages:', currentChat?.messages);
-    }
-  }, [chats, currentChatId]);
-
-  const createNewChat = () => {
-    const newChat: Chat = {
-      id: Date.now().toString(),
-      title: `New ${title} ${new Date().toLocaleString()}`,
-      messages: [],
-      createdAt: new Date().toISOString(),
-      tone: 'professional',
-      language: 'en'
-    };
-    console.log('Creating new chat:', newChat);
-    setChats(prevChats => [newChat, ...prevChats]);
-    setCurrentChatId(newChat.id);
-    return newChat.id;
   };
 
-  const handleToneChange = (newTone: EmailTone) => {
-    if (currentChatId) {
-      const updatedChats = chats.map(chat => {
-        if (chat.id === currentChatId) {
-          return { ...chat, tone: newTone };
-        }
-        return chat;
+  const createNewChat = async () => {
+    try {
+      const response = await fetch('/api/chats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: `New ${title} ${new Date().toLocaleString()}`,
+          type: action,
+          tone: 'professional',
+          language: 'en',
+        }),
       });
-      setChats(updatedChats);
+
+      if (!response.ok) {
+        throw new Error('Failed to create chat');
+      }
+
+      const newChat = await response.json();
+      setChats(prevChats => [newChat, ...prevChats]);
+      setCurrentChatId(newChat.id);
+    } catch (error) {
+      console.error('Error creating chat:', error);
+      setError('Failed to create new chat');
+    }
+  };
+
+  const handleToneChange = async (newTone: EmailTone) => {
+    if (currentChatId) {
+      try {
+        const response = await fetch(`/api/chats/${currentChatId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tone: newTone }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update tone');
+        }
+
+        const updatedChats = chats.map(chat => {
+          if (chat.id === currentChatId) {
+            return { ...chat, tone: newTone };
+          }
+          return chat;
+        });
+        setChats(updatedChats);
+      } catch (error) {
+        console.error('Error updating tone:', error);
+        setError('Failed to update tone');
+      }
     }
     setShowToneSelector(false);
   };
 
-  const handleLanguageChange = (newLanguage: string) => {
+  const handleLanguageChange = async (newLanguage: string) => {
     if (currentChatId) {
-      const updatedChats = chats.map(chat => {
-        if (chat.id === currentChatId) {
-          return { ...chat, language: newLanguage };
+      try {
+        const response = await fetch(`/api/chats/${currentChatId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ language: newLanguage }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update language');
         }
-        return chat;
-      });
-      setChats(updatedChats);
+
+        const updatedChats = chats.map(chat => {
+          if (chat.id === currentChatId) {
+            return { ...chat, language: newLanguage };
+          }
+          return chat;
+        });
+        setChats(updatedChats);
+      } catch (error) {
+        console.error('Error updating language:', error);
+        setError('Failed to update language');
+      }
     }
     setShowLanguageSelector(false);
   };
 
-  const deleteChat = (chatId: string, e: React.MouseEvent) => {
+  const deleteChat = async (chatId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const updatedChats = chats.filter(chat => chat.id !== chatId);
-    setChats(updatedChats);
-    if (currentChatId === chatId) {
-      setCurrentChatId(updatedChats[0]?.id || null);
-      setInput('');
+    try {
+      const response = await fetch(`/api/chats/${chatId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete chat');
+      }
+
+      const updatedChats = chats.filter(chat => chat.id !== chatId);
+      setChats(updatedChats);
+      if (currentChatId === chatId) {
+        setCurrentChatId(updatedChats[0]?.id || null);
+        setInput('');
+      }
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+      setError('Failed to delete chat');
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!session?.user) {
+      setError('Please sign in to continue');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
       // If there's no active chat, create one
       if (!currentChatId) {
-        createNewChat();
+        await createNewChat();
       }
 
       // Get the current chat
@@ -150,21 +205,35 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
         throw new Error('No active chat');
       }
 
-      // Add user message immediately
-      if (currentChatId) {
-        setChats(prevChats => prevChats.map(chat => {
-          if (chat.id === currentChatId) {
-            return {
-              ...chat,
-              messages: [
-                ...chat.messages,
-                { role: 'user', content: input }
-              ]
-            };
-          }
-          return chat;
-        }));
+      // Add user message to database
+      const messageResponse = await fetch(`/api/chats/${currentChatId}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          role: 'user',
+          content: input,
+        }),
+      });
+
+      if (!messageResponse.ok) {
+        throw new Error('Failed to save message');
       }
+
+      // Update local state
+      setChats(prevChats => prevChats.map(chat => {
+        if (chat.id === currentChatId) {
+          return {
+            ...chat,
+            messages: [
+              ...chat.messages,
+              { role: 'user', content: input }
+            ]
+          };
+        }
+        return chat;
+      }));
 
       // Get the last assistant message for previous email
       const lastAssistantMessage = currentChat.messages
@@ -173,7 +242,6 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
 
       // For reply, enhance, and summarize actions, we need the previous email
       if (['reply', 'enhance', 'summarize'].includes(action)) {
-        // If there's no previous message, use the current input as the previous email
         const previousEmail = lastAssistantMessage || input;
         
         const response = await fetch('/api/email', {
@@ -197,21 +265,35 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
 
         const data = await response.json();
         
-        // Add the assistant's response to the chat
-        if (currentChatId) {
-          setChats(prevChats => prevChats.map(chat => {
-            if (chat.id === currentChatId) {
-              return {
-                ...chat,
-                messages: [
-                  ...chat.messages,
-                  { role: 'assistant', content: data.result }
-                ]
-              };
-            }
-            return chat;
-          }));
+        // Save assistant's response to database
+        const assistantMessageResponse = await fetch(`/api/chats/${currentChatId}/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            role: 'assistant',
+            content: data.result,
+          }),
+        });
+
+        if (!assistantMessageResponse.ok) {
+          throw new Error('Failed to save assistant message');
         }
+
+        // Update local state
+        setChats(prevChats => prevChats.map(chat => {
+          if (chat.id === currentChatId) {
+            return {
+              ...chat,
+              messages: [
+                ...chat.messages,
+                { role: 'assistant', content: data.result }
+              ]
+            };
+          }
+          return chat;
+        }));
       } else {
         // For write action, proceed normally
         const response = await fetch('/api/email', {
@@ -234,21 +316,35 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
 
         const data = await response.json();
         
-        // Add the assistant's response to the chat
-        if (currentChatId) {
-          setChats(prevChats => prevChats.map(chat => {
-            if (chat.id === currentChatId) {
-              return {
-                ...chat,
-                messages: [
-                  ...chat.messages,
-                  { role: 'assistant', content: data.result }
-                ]
-              };
-            }
-            return chat;
-          }));
+        // Save assistant's response to database
+        const assistantMessageResponse = await fetch(`/api/chats/${currentChatId}/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            role: 'assistant',
+            content: data.result,
+          }),
+        });
+
+        if (!assistantMessageResponse.ok) {
+          throw new Error('Failed to save assistant message');
         }
+
+        // Update local state
+        setChats(prevChats => prevChats.map(chat => {
+          if (chat.id === currentChatId) {
+            return {
+              ...chat,
+              messages: [
+                ...chat.messages,
+                { role: 'assistant', content: data.result }
+              ]
+            };
+          }
+          return chat;
+        }));
       }
 
       setInput(''); // Clear the input after successful submission
