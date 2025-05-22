@@ -24,7 +24,7 @@ export const OllamaStream = async (
 ) => {
   let url = `${OLLAMA_HOST}/api/generate`;
   
-  // Create an AbortController with a long timeout
+  // reate an AbortController with a long timeout
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_DURATION);
   
