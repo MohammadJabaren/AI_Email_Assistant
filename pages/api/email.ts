@@ -71,6 +71,7 @@ export default async function handler(
               resolve(response.result);
             }
           } catch (e) {
+            // If the response isn't JSON, use it as is
             resolve(result.trim());
           }
         } else {
@@ -79,9 +80,16 @@ export default async function handler(
       });
     });
 
+    // Make sure we're sending a proper response
+    if (!response) {
+      throw new Error('No response from email service');
+    }
+
     res.status(200).json({ result: response });
   } catch (error: any) {
     console.error('Error in handler:', error);
-    res.status(500).json({ result: `Error: ${error?.message || 'Unknown error'}` });
+    res.status(500).json({ 
+      result: `Error: ${error?.message || 'Unknown error'}` 
+    });
   }
 } 

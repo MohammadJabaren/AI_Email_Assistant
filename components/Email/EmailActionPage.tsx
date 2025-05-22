@@ -114,39 +114,10 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
     }
   };
 
-  const handleSubmit = async () => {
-    if (!input.trim()) return;
-
-    let chatId = currentChatId;
-    if (!chatId) {
-      chatId = createNewChat();
-    }
-
-    const userInput = input;
-    setInput(''); // Clear input immediately after submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
-
-    // Get the current chat and its last AI message if it exists
-    const currentChat = chats.find(c => c.id === chatId);
-    const lastAIMessage = currentChat?.messages.filter(m => m.role === 'assistant').pop();
-    const isModifyingOrEnhancing = userInput.startsWith('Enhance this email by ') || userInput.startsWith('Modify this email to include ');
-
-    // Immediately add user message to chat
-    setChats(prevChats => 
-      prevChats.map(chat => {
-        if (chat.id === chatId) {
-          console.log('Adding user message to chat:', chat.id);
-          return {
-            ...chat,
-            messages: [
-              ...chat.messages,
-              { role: 'user', content: userInput }
-            ]
-          };
-        }
-        return chat;
-      })
-    );
+    setError(null);
 
     try {
       const response = await fetch('/api/email', {
@@ -156,54 +127,22 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
         },
         body: JSON.stringify({
           action,
-          text: userInput,
+          text: input,
           tone: currentTone,
           language: currentLanguage,
-          // Include previous email if we're modifying or enhancing
-          ...(isModifyingOrEnhancing && lastAIMessage ? { previousEmail: lastAIMessage.content } : {})
+          previousEmail: chats.find(c => c.id === currentChatId)?.messages.filter(m => m.role === 'assistant').pop()?.content || undefined,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get response');
+        const errorData = await response.json();
+        throw new Error(errorData.result || 'Failed to get response');
       }
 
       const data = await response.json();
-      console.log('Received response:', data);
-
-      // Add AI response to chat
-      setChats(prevChats => 
-        prevChats.map(chat => {
-          if (chat.id === chatId) {
-            console.log('Adding AI response to chat:', chat.id);
-            return {
-              ...chat,
-              messages: [
-                ...chat.messages,
-                { role: 'assistant', content: data.result }
-              ]
-            };
-          }
-          return chat;
-        })
-      );
-    } catch (error) {
-      console.error('Error in handleSubmit:', error);
-      // Add error message to chat
-      setChats(prevChats => 
-        prevChats.map(chat => {
-          if (chat.id === chatId) {
-            return {
-              ...chat,
-              messages: [
-                ...chat.messages,
-                { role: 'assistant', content: 'An error occurred while processing your request.' }
-              ]
-            };
-          }
-          return chat;
-        })
-      );
+      setResult(data.result);
+    } catch (error: any) {
+      setError(error.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
