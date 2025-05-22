@@ -150,6 +150,22 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
         throw new Error('No active chat');
       }
 
+      // Add user message immediately
+      if (currentChatId) {
+        setChats(prevChats => prevChats.map(chat => {
+          if (chat.id === currentChatId) {
+            return {
+              ...chat,
+              messages: [
+                ...chat.messages,
+                { role: 'user', content: input }
+              ]
+            };
+          }
+          return chat;
+        }));
+      }
+
       // Get the last assistant message for previous email
       const lastAssistantMessage = currentChat.messages
         .filter(m => m.role === 'assistant')
@@ -181,7 +197,7 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
 
         const data = await response.json();
         
-        // Add the new message to the chat
+        // Add the assistant's response to the chat
         if (currentChatId) {
           setChats(prevChats => prevChats.map(chat => {
             if (chat.id === currentChatId) {
@@ -189,14 +205,12 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
                 ...chat,
                 messages: [
                   ...chat.messages,
-                  { role: 'user', content: input },
                   { role: 'assistant', content: data.result }
                 ]
               };
             }
             return chat;
           }));
-          setInput(''); // Clear the input after successful submission
         }
       } else {
         // For write action, proceed normally
@@ -220,7 +234,7 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
 
         const data = await response.json();
         
-        // Add the new message to the chat
+        // Add the assistant's response to the chat
         if (currentChatId) {
           setChats(prevChats => prevChats.map(chat => {
             if (chat.id === currentChatId) {
@@ -228,16 +242,16 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
                 ...chat,
                 messages: [
                   ...chat.messages,
-                  { role: 'user', content: input },
                   { role: 'assistant', content: data.result }
                 ]
               };
             }
             return chat;
           }));
-          setInput(''); // Clear the input after successful submission
         }
       }
+
+      setInput(''); // Clear the input after successful submission
     } catch (error: any) {
       setError(error.message || 'An error occurred');
     } finally {
