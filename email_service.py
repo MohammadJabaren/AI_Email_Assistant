@@ -234,7 +234,7 @@ Requirements:
         elapsed = end_time - start_time
         print(f"⏱ Prompt generation time: {elapsed:.2f} seconds")  # or return this value
 
-        return result.strip()
+        return result
 
 async def main():
     parser = argparse.ArgumentParser(description='Generate or process emails using Ollama')
@@ -273,7 +273,7 @@ async def main():
             "status": "success",
             "result": result.strip()
         }
-        print(json.dumps(response))
+        print(response.strip())
 
     except Exception as e:
         # Output error as JSON
