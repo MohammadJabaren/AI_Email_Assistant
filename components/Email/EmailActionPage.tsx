@@ -273,59 +273,71 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
   // Find the current language name
   const currentLanguageName = languages.find(l => l.code === currentLanguage)?.name || 'English';
 
+  const sidebarItems = chats.map(chat => ({
+    id: chat.id,
+    title: chat.title,
+    isActive: currentChatId === chat.id,
+    onSelect: () => selectChat(chat.id),
+    onDelete: (e: React.MouseEvent) => deleteChat(chat.id, e)
+  }));
+
+  const SidebarItem = ({ item }: { item: typeof sidebarItems[0] }) => (
+    <div
+      className={`group flex items-center gap-3 rounded-lg p-3 text-sm transition-all duration-200 hover:bg-blue-600/20 text-white w-full mb-2 ${
+        item.isActive ? 'bg-blue-600/20' : ''
+      }`}
+    >
+      <button
+        onClick={item.onSelect}
+        className="flex-1 text-left truncate"
+      >
+        <span className="truncate">{item.title}</span>
+      </button>
+      <button
+        onClick={item.onDelete}
+        className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-gray-500/20 rounded"
+        title="Delete chat"
+      >
+        <IconTrash size={16} />
+      </button>
+    </div>
+  );
+
+  const SidebarFooter = () => (
+    <button
+      onClick={() => router.push('/')}
+      className="flex items-center justify-center gap-3 rounded-lg p-3 text-sm transition-all duration-200 hover:bg-blue-600 text-white bg-blue-500 w-full"
+    >
+      <IconHome size={16} />
+      <span>Return to Home</span>
+    </button>
+  );
+
   return (
     <>
       <Head>
         <title>{title} - AI Email Assistant</title>
       </Head>
       <div className="flex h-screen">
-        <div className="fixed top-0 left-0 z-40 flex h-full w-[260px] flex-none flex-col bg-[#202123] p-2 text-[14px]">
-          {/* New Chat Button */}
-          <button
-            onClick={createNewChat}
-            className="flex items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-gray-500/10 text-white border border-white/20 mb-4"
-          >
-            <IconPlus size={16} />
-            <span>New Chat</span>
-          </button>
-
-          {/* Chat History */}
-          <div className="flex-1 overflow-auto">
-            {chats.map((chat) => (
-              <div
-                key={chat.id}
-                className={`group flex items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-gray-500/10 text-white w-full mb-2 ${
-                  currentChatId === chat.id ? 'bg-gray-500/10' : ''
-                }`}
-              >
-                <button
-                  onClick={() => selectChat(chat.id)}
-                  className="flex-1 text-left truncate"
-                >
-                  <span className="truncate">{chat.title}</span>
-                </button>
-                <button
-                  onClick={(e) => deleteChat(chat.id, e)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-gray-500/20 rounded"
-                  title="Delete chat"
-                >
-                  <IconTrash size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Return Home Button */}
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center justify-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200 hover:bg-blue-600 text-white bg-blue-500 mt-4 w-full"
-          >
-            <IconHome size={16} />
-            <span>Return to Home</span>
-          </button>
-        </div>
+        <Sidebar
+          isOpen={true}
+          addItemButtonTitle="New Chat"
+          side="left"
+          items={sidebarItems}
+          itemComponent={sidebarItems.map(item => (
+            <SidebarItem key={item.id} item={item} />
+          ))}
+          folderComponent={null}
+          footerComponent={<SidebarFooter />}
+          searchTerm=""
+          handleSearchTerm={() => {}}
+          toggleOpen={() => {}}
+          handleCreateItem={createNewChat}
+          handleCreateFolder={() => {}}
+          handleDrop={() => {}}
+        />
         
-        <main className="flex-1 overflow-hidden bg-[#343541] ml-[260px]">
+        <main className="flex-1 overflow-hidden bg-[#343541] ml-[280px]">
           <div className="flex h-full flex-col">
             {/* Header with Tone and Language Selectors */}
             <div className="border-b border-white/20 p-4 flex justify-between items-center">
