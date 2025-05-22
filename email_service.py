@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from enum import Enum
 import os
 import time
+import aiohttp
 
 class EmailTone(str, Enum):
     PROFESSIONAL = "professional"
@@ -203,14 +204,14 @@ Requirements:
                 "seed": None
             }
 
-            response = requests.post(
-                f"{self.ollama_url}/api/internal/generate",
-                json=params
-            )
-            response.raise_for_status()
-            data = await response.json()
-            
-            return data.get("response", "").strip()
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    f"{self.ollama_url}/api/generate",
+                    json=params
+                ) as response:
+                    response.raise_for_status()
+                    data = await response.json()
+                    return data.get("response", "").strip()
         except Exception as e:
             raise Exception(f"Failed to generate email: {str(e)}")
 
