@@ -30,7 +30,7 @@ class EmailService:
     def __init__(self, ollama_url: Optional[str] = None, debug: bool = False):
         
  # No default, force to get from env or param
-        self.ollama_url = "http://204.236.180.238:11434"
+        self.ollama_url = "http://OLLAMA_SERVICE_IP:11434"
         if not self.ollama_url:
             raise ValueError("OLLAMA_SERVICE_IP environment variable is not set") 
         self.language_map = self._initialize_language_map()
