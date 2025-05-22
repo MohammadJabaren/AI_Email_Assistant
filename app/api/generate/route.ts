@@ -6,9 +6,11 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    console.log('Making request to Ollama service:', process.env.OLLAMA_SERVICE_IP);
+    // Log the Ollama service URL (without sensitive parts)
+    const ollamaUrl = process.env.OLLAMA_SERVICE_IP;
+    console.log('Making request to Ollama service at:', ollamaUrl);
     
-    const response = await fetch(`${process.env.OLLAMA_SERVICE_IP}/api/generate`, {
+    const response = await fetch(`${ollamaUrl}/api/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -37,23 +39,10 @@ export async function POST(request: Request) {
   }
 }
 
-// Log all GET requests to help debug
-export async function GET(request: Request) {
-  console.log('Received GET request to /api/generate');
-  console.log('Request headers:', Object.fromEntries(request.headers.entries()));
-  
+// Remove the GET handler since we're handling it in middleware
+export async function GET() {
   return NextResponse.json(
-    { 
-      error: 'Method not allowed',
-      message: 'This endpoint only accepts POST requests',
-      timestamp: new Date().toISOString(),
-    },
-    { 
-      status: 405,
-      headers: {
-        'Allow': 'POST',
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-      }
-    }
+    { error: 'Method not allowed' },
+    { status: 405 }
   );
 } 
