@@ -65,11 +65,21 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
     localStorage.setItem(`email-${action}-chats`, JSON.stringify(chats));
   }, [chats, action]);
 
+  // Add this useEffect to monitor chat changes
+  useEffect(() => {
+    console.log('Current Chat:', currentChatId);
+    console.log('All Chats:', chats);
+    if (currentChatId) {
+      const currentChat = chats.find(c => c.id === currentChatId);
+      console.log('Current Chat Messages:', currentChat?.messages);
+    }
+  }, [chats, currentChatId]);
+
   const createNewChat = () => {
     const newChat: Chat = {
       id: Date.now().toString(),
       title: `New ${title} ${new Date().toLocaleString()}`,
-      messages: [],
+      messages: [], // Ensure this is initialized as an empty array
       createdAt: new Date().toISOString(),
       tone: 'professional',
       language: 'en'
@@ -77,7 +87,7 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
     console.log('Creating new chat:', newChat);
     setChats(prevChats => [newChat, ...prevChats]);
     setCurrentChatId(newChat.id);
-    return newChat.id; // Return the new chat ID
+    return newChat.id;
   };
 
   const handleToneChange = (newTone: EmailTone) => {
@@ -122,6 +132,24 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
     setError(null);
 
     try {
+      // Get the current chat
+      const currentChat = chats.find(c => c.id === currentChatId);
+      if (!currentChat) {
+        throw new Error('No active chat');
+      }
+
+      // Get the last assistant message for previous email
+      const lastAssistantMessage = currentChat.messages
+        .filter(m => m.role === 'assistant')
+        .pop()?.content;
+
+      // For reply, enhance, and summarize actions, we need the previous email
+      if (['reply', 'enhance', 'summarize'].includes(action) && !lastAssistantMessage) {
+        setError('Please wait for a response before using this action');
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch('/api/email', {
         method: 'POST',
         headers: {
@@ -132,7 +160,7 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
           text: input,
           tone: currentTone,
           language: currentLanguage,
-          previousEmail: chats.find(c => c.id === currentChatId)?.messages.filter(m => m.role === 'assistant').pop()?.content || undefined,
+          previousEmail: lastAssistantMessage, // Use the last assistant message
         }),
       });
 
