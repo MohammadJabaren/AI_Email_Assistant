@@ -30,7 +30,7 @@ class EmailService:
     def __init__(self, ollama_url: Optional[str] = None, debug: bool = False):
         
  # No default, force to get from env or param
-        self.ollama_url = ollama_url or os.getenv("OLLAMA_SERVICE_IP")
+        self.ollama_url = "http://204.236.180.238:11434"
         if not self.ollama_url:
             raise ValueError("OLLAMA_SERVICE_IP environment variable is not set") 
         self.language_map = self._initialize_language_map()
@@ -187,30 +187,22 @@ Requirements:
 
     async def generate_with_ollama(self, prompt: str) -> str:
         try:
+                    
             params = {
-                "model": "tinyllama",
-                "prompt": prompt,
-                "stream": False,
-                "max_tokens": 250,
-                "temperature": 0.8,
-                "top_p": 0.9,
-                "top_k": 40,
-                "repeat_penalty": 1.2,
-                "stop": ["</email>", "---", "[Your", "[Company", "[Email", "[Today's"],
-                "num_predict": 150,
-                "num_ctx": 512,
-                "num_thread": 8,
-                "num_gpu": 1,
-                "seed": None
+                "model": "mistral",  # <- use a chat-tuned model
+                "messages": [
+                    {"role": "system", "content": "You are a helpful email assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                "stream": False
             }
 
             response = requests.post(
-                f"{self.ollama_url}/api/generate",
+                f"{self.ollama_url}/api/chat",
                 json=params
             )
             response.raise_for_status()
             data = response.json()
-            print(data)
             return data.get("response", "").strip()
         except Exception as e:
             raise Exception(f"Failed to generate email: {str(e)}")
