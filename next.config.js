@@ -40,27 +40,24 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/api/generate',
+        source: '/api/:path*',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store, no-cache, must-revalidate, max-age=0',
-          },
-          {
-            key: 'Pragma',
-            value: 'no-cache',
-          },
-          {
-            key: 'Expires',
-            value: '0',
-          },
-          {
-            key: 'Allow',
-            value: 'POST',
-          },
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
         ],
       },
-    ];
+    ]
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: '/api/generate',
+        destination: '/api/generate',
+      },
+    ]
   },
 };
 
