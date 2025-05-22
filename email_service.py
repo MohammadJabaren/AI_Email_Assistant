@@ -345,7 +345,7 @@ class EmailService:
         if self.action == 'reply':
             if not previous_email:
                 raise ValueError("Previous email is required for reply action")
-            return f"""Write a response to this email in {language_info.name}:
+            return f"""You are a professional email writer. Write a response to this email in {language_info.name} ONLY.
 
 Original Email:
 {previous_email}
@@ -353,39 +353,43 @@ Original Email:
 Your Response Instructions:
 {text}
 
-Requirements:
-1. Write a completely new response in {language_info.name} ONLY
-2. Do NOT use templates or placeholders like [Your Name] or [Date]
-3. Do NOT mix languages
+CRITICAL REQUIREMENTS:
+1. Write the ENTIRE response in {language_info.name} ONLY - do not use any other language
+2. Do NOT use templates or placeholders
+3. Do NOT mix languages - every single word must be in {language_info.name}
 4. Do NOT copy or repeat any part of the original email
 5. Start with {language_info.formalGreeting}
 6. Acknowledge the original email's main points
-7. Provide your specific response to the dinner invitation
+7. Provide your specific response
 8. End with {language_info.closing}
 9. Keep the tone {tone_instructions}
 10. Use proper {language_info.name} grammar and punctuation
 11. Make it personal and specific to the situation
+12. If you don't know how to write something in {language_info.name}, DO NOT make it up - use simpler language you know is correct
 
-Remember: This should be a new response, not a template or modification of the original."""
+Remember: This must be a complete response written entirely in {language_info.name}."""
 
         elif self.action == 'summarize':
             if not previous_email:
                 raise ValueError("Previous email is required for summarize action")
-            return f"""Summarize the following email in {language_info.name}:
+            return f"""You are a professional email summarizer. Summarize the following email in {language_info.name} ONLY.
 
 {previous_email}
 
-Instructions:
-- Provide 2–3 concise bullet points
-- Focus only on the main points and actions
-- Exclude greetings, sign-offs, and extra details
-- Keep the total summary under 50 words
-- Be clear and direct"""
+CRITICAL REQUIREMENTS:
+1. Write the ENTIRE summary in {language_info.name} ONLY
+2. Provide 2–3 concise bullet points
+3. Focus only on the main points and actions
+4. Exclude greetings, sign-offs, and extra details
+5. Keep the total summary under 50 words
+6. Be clear and direct
+7. Do NOT use any other language - every word must be in {language_info.name}
+8. Use proper {language_info.name} grammar and punctuation"""
 
         elif self.action == 'enhance':
             if not previous_email:
                 raise ValueError("Previous email is required for enhance action")
-            return f"""Enhance this email in {language_info.name}:
+            return f"""You are a professional email enhancer. Enhance this email in {language_info.name} ONLY.
 
 Original Email:
 {previous_email}
@@ -393,30 +397,38 @@ Original Email:
 Enhancement Instructions:
 {text}
 
-Requirements:
-1. Keep the same main message and intent
-2. Improve the language and structure
-3. Make it more professional and polished
-4. Use proper {language_info.name} grammar and punctuation
-5. Keep the tone {tone_instructions}
-6. Start with {language_info.formalGreeting}
-7. End with {language_info.closing}
-8. Do NOT change the core message or add new information
+CRITICAL REQUIREMENTS:
+1. Write the ENTIRE enhanced email in {language_info.name} ONLY
+2. Keep the same main message and intent
+3. Improve the language and structure
+4. Make it more professional and polished
+5. Use proper {language_info.name} grammar and punctuation
+6. Keep the tone {tone_instructions}
+7. Start with {language_info.formalGreeting}
+8. End with {language_info.closing}
+9. Do NOT change the core message or add new information
+10. Do NOT use any other language - every word must be in {language_info.name}
 
-Remember: This should be an enhanced version of the original email, maintaining its main points but improving its presentation."""
+Remember: This must be an enhanced version written entirely in {language_info.name}."""
 
         else:  # write action
-            return f"""Write a new email in {language_info.name}:
+            return f"""You are a professional email writer. Write a new email in {language_info.name} ONLY.
+
 Content: {text}
 Style: {tone_instructions}
 Greeting: {language_info.formalGreeting}
 Closing: {language_info.closing}
-Requirements:
-1. Write a complete email in {language_info.name} ONLY
+
+CRITICAL REQUIREMENTS:
+1. Write the ENTIRE email in {language_info.name} ONLY
 2. Do NOT use templates or placeholders
 3. Include proper greeting and closing
 4. Keep it professional and clear
-5. Use proper grammar and punctuation"""
+5. Use proper {language_info.name} grammar and punctuation
+6. Do NOT use any other language - every word must be in {language_info.name}
+7. If you don't know how to write something in {language_info.name}, DO NOT make it up - use simpler language you know is correct
+
+Remember: This must be a complete email written entirely in {language_info.name}."""
 
     async def generate_with_ollama(self, prompt: str) -> str:
         try:
