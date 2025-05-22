@@ -30,7 +30,10 @@ $NODE_BIN ci
 # 4. Copy and configure systemd services
 echo "⚙️ Setting up systemd services..."
 
-echo "OLLAMA_SERVICE_IP=$OLLAMA_SERVICE_IP"
+# Save environment variable for systemd to use
+echo "📄 Writing environment config..."
+echo "OLLAMA_SERVICE_IP=$OLLAMA_SERVICE_IP" | sudo tee /etc/systemd/system/ui.env > /dev/null
+
 
 # UI service (runs `npm run dev`)
 sudo cp ui.service "$UI_SERVICE"
