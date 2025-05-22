@@ -55,6 +55,23 @@ class EmailService:
                     "Be direct but polite"
                 ]
             ),
+            'es': LanguageInfo(
+                name="Spanish (Español)",
+                formalGreeting="Estimado/a",
+                closing="Atentamente,",
+                dateFormat="DD/MM/YYYY",
+                nameFormat="{honorific} {firstName} {lastName}",
+                honorifics={
+                    "male": ["Sr.", "Dr.", "Prof."],
+                    "female": ["Sra.", "Srita.", "Dr.", "Prof."],
+                    "neutral": ["Sr.", "Dr.", "Prof."]
+                },
+                culturalNotes=[
+                    "Use titles unless explicitly asked to use first names",
+                    "Keep paragraphs concise and well-spaced",
+                    "Be direct but polite"
+                ]
+            ),
             'fr': LanguageInfo(
                 name="French (Français)",
                 formalGreeting="Cher/Chère",
@@ -73,24 +90,240 @@ class EmailService:
                     "Use proper French punctuation and spacing"
                 ]
             ),
-            'es': LanguageInfo(
-                name="Spanish (Español)",
-                formalGreeting="Estimado/a",
-                closing="Atentamente,",
+            'de': LanguageInfo(
+                name="German (Deutsch)",
+                formalGreeting="Sehr geehrte(r)",
+                closing="Mit freundlichen Grüßen,",
+                dateFormat="DD.MM.YYYY",
+                nameFormat="{honorific} {firstName} {lastName}",
+                honorifics={
+                    "male": ["Herr", "Dr.", "Prof."],
+                    "female": ["Frau", "Dr.", "Prof."],
+                    "neutral": ["Dr.", "Prof."]
+                },
+                culturalNotes=[
+                    "Use formal language in business context",
+                    "Be precise and structured",
+                    "Maintain professional distance",
+                    "Use proper German punctuation"
+                ]
+            ),
+            'it': LanguageInfo(
+                name="Italian (Italiano)",
+                formalGreeting="Gentile",
+                closing="Cordiali saluti,",
+                dateFormat="DD/MM/YYYY",
+                nameFormat="{honorific} {firstName} {lastName}",
+                honorifics={
+                    "male": ["Sig.", "Dott.", "Prof."],
+                    "female": ["Sig.ra", "Dott.ssa", "Prof.ssa"],
+                    "neutral": ["Dott.", "Prof."]
+                },
+                culturalNotes=[
+                    "Use formal language in business context",
+                    "Be warm but professional",
+                    "Use proper Italian punctuation",
+                    "Maintain respectful tone"
+                ]
+            ),
+            'pt': LanguageInfo(
+                name="Portuguese (Português)",
+                formalGreeting="Prezado(a)",
+                closing="Atenciosamente,",
                 dateFormat="DD/MM/YYYY",
                 nameFormat="{honorific} {firstName} {lastName}",
                 honorifics={
                     "male": ["Sr.", "Dr.", "Prof."],
-                    "female": ["Sra.", "Srita.", "Dr.", "Prof."],
-                    "neutral": ["Sr.", "Dr.", "Prof."]
+                    "female": ["Sra.", "Dra.", "Profa."],
+                    "neutral": ["Dr.", "Prof."]
                 },
                 culturalNotes=[
-                    "Use titles unless explicitly asked to use first names",
-                    "Keep paragraphs concise and well-spaced",
-                    "Be direct but polite"
+                    "Use formal language in business context",
+                    "Be polite and respectful",
+                    "Use proper Portuguese punctuation",
+                    "Maintain professional tone"
                 ]
             ),
-            # Add more languages as needed
+            'nl': LanguageInfo(
+                name="Dutch (Nederlands)",
+                formalGreeting="Geachte",
+                closing="Met vriendelijke groet,",
+                dateFormat="DD-MM-YYYY",
+                nameFormat="{honorific} {firstName} {lastName}",
+                honorifics={
+                    "male": ["Dhr.", "Dr.", "Prof."],
+                    "female": ["Mevr.", "Dr.", "Prof."],
+                    "neutral": ["Dr.", "Prof."]
+                },
+                culturalNotes=[
+                    "Be direct but polite",
+                    "Use formal language in business context",
+                    "Keep communication clear and concise",
+                    "Maintain professional distance"
+                ]
+            ),
+            'ru': LanguageInfo(
+                name="Russian (Русский)",
+                formalGreeting="Уважаемый(ая)",
+                closing="С уважением,",
+                dateFormat="DD.MM.YYYY",
+                nameFormat="{honorific} {firstName} {lastName}",
+                honorifics={
+                    "male": ["Господин", "Доктор", "Профессор"],
+                    "female": ["Госпожа", "Доктор", "Профессор"],
+                    "neutral": ["Доктор", "Профессор"]
+                },
+                culturalNotes=[
+                    "Use formal language in business context",
+                    "Be respectful and professional",
+                    "Use proper Russian punctuation",
+                    "Maintain formal tone"
+                ]
+            ),
+            'zh': LanguageInfo(
+                name="Chinese (中文)",
+                formalGreeting="尊敬的",
+                closing="此致",
+                dateFormat="YYYY/MM/DD",
+                nameFormat="{honorific}{lastName}{firstName}",
+                honorifics={
+                    "male": ["先生", "博士", "教授"],
+                    "female": ["女士", "博士", "教授"],
+                    "neutral": ["博士", "教授"]
+                },
+                culturalNotes=[
+                    "Use formal language in business context",
+                    "Be respectful and humble",
+                    "Use proper Chinese punctuation",
+                    "Maintain hierarchical respect"
+                ]
+            ),
+            'ja': LanguageInfo(
+                name="Japanese (日本語)",
+                formalGreeting="拝啓",
+                closing="敬具",
+                dateFormat="YYYY/MM/DD",
+                nameFormat="{lastName}{honorific} {firstName}",
+                honorifics={
+                    "male": ["様", "博士", "教授"],
+                    "female": ["様", "博士", "教授"],
+                    "neutral": ["様", "博士", "教授"]
+                },
+                culturalNotes=[
+                    "Use formal language in business context",
+                    "Be extremely polite and respectful",
+                    "Use proper Japanese punctuation",
+                    "Maintain hierarchical respect"
+                ]
+            ),
+            'ko': LanguageInfo(
+                name="Korean (한국어)",
+                formalGreeting="존경하는",
+                closing="감사합니다",
+                dateFormat="YYYY/MM/DD",
+                nameFormat="{lastName}{honorific} {firstName}",
+                honorifics={
+                    "male": ["님", "박사", "교수"],
+                    "female": ["님", "박사", "교수"],
+                    "neutral": ["님", "박사", "교수"]
+                },
+                culturalNotes=[
+                    "Use formal language in business context",
+                    "Be extremely polite and respectful",
+                    "Use proper Korean punctuation",
+                    "Maintain hierarchical respect"
+                ]
+            ),
+            'ar': LanguageInfo(
+                name="Arabic (العربية)",
+                formalGreeting="عزيزي/عزيزتي",
+                closing="مع تحياتي",
+                dateFormat="DD/MM/YYYY",
+                nameFormat="{honorific} {firstName} {lastName}",
+                honorifics={
+                    "male": ["السيد", "الدكتور", "الأستاذ"],
+                    "female": ["السيدة", "الدكتورة", "الأستاذة"],
+                    "neutral": ["الدكتور", "الأستاذ"]
+                },
+                culturalNotes=[
+                    "Use formal language in business context",
+                    "Be respectful and polite",
+                    "Use proper Arabic punctuation",
+                    "Maintain cultural sensitivity"
+                ]
+            ),
+            'hi': LanguageInfo(
+                name="Hindi (हिन्दी)",
+                formalGreeting="प्रिय",
+                closing="सादर",
+                dateFormat="DD/MM/YYYY",
+                nameFormat="{honorific} {firstName} {lastName}",
+                honorifics={
+                    "male": ["श्री", "डॉ.", "प्रो."],
+                    "female": ["श्रीमती", "डॉ.", "प्रो."],
+                    "neutral": ["डॉ.", "प्रो."]
+                },
+                culturalNotes=[
+                    "Use formal language in business context",
+                    "Be respectful and polite",
+                    "Use proper Hindi punctuation",
+                    "Maintain cultural sensitivity"
+                ]
+            ),
+            'tr': LanguageInfo(
+                name="Turkish (Türkçe)",
+                formalGreeting="Sayın",
+                closing="Saygılarımla,",
+                dateFormat="DD.MM.YYYY",
+                nameFormat="{honorific} {firstName} {lastName}",
+                honorifics={
+                    "male": ["Bay", "Dr.", "Prof."],
+                    "female": ["Bayan", "Dr.", "Prof."],
+                    "neutral": ["Dr.", "Prof."]
+                },
+                culturalNotes=[
+                    "Use formal language in business context",
+                    "Be respectful and polite",
+                    "Use proper Turkish punctuation",
+                    "Maintain professional tone"
+                ]
+            ),
+            'pl': LanguageInfo(
+                name="Polish (Polski)",
+                formalGreeting="Szanowny(a)",
+                closing="Z poważaniem,",
+                dateFormat="DD.MM.YYYY",
+                nameFormat="{honorific} {firstName} {lastName}",
+                honorifics={
+                    "male": ["Pan", "Dr.", "Prof."],
+                    "female": ["Pani", "Dr.", "Prof."],
+                    "neutral": ["Dr.", "Prof."]
+                },
+                culturalNotes=[
+                    "Use formal language in business context",
+                    "Be respectful and polite",
+                    "Use proper Polish punctuation",
+                    "Maintain professional tone"
+                ]
+            ),
+            'he': LanguageInfo(
+                name="Hebrew (עברית)",
+                formalGreeting="יקר/ה",
+                closing="בברכה,",
+                dateFormat="DD/MM/YYYY",
+                nameFormat="{honorific} {firstName} {lastName}",
+                honorifics={
+                    "male": ["מר", "ד\"ר", "פרופ'"],
+                    "female": ["גב'", "ד\"ר", "פרופ'"],
+                    "neutral": ["ד\"ר", "פרופ'"]
+                },
+                culturalNotes=[
+                    "Use formal language in business context",
+                    "Be respectful and polite",
+                    "Use proper Hebrew punctuation",
+                    "Maintain cultural sensitivity"
+                ]
+            )
         }
 
     def get_tone_instructions(self, tone: EmailTone) -> str:
