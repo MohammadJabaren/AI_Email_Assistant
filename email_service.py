@@ -210,7 +210,7 @@ Requirements:
                 json=params
             )
             response.raise_for_status()
-            data = await response.json() 
+            data = response.json() 
             return data.get("response", "").strip()
     
         except Exception as e:
