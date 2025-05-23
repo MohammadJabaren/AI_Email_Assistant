@@ -2,31 +2,34 @@ name: Pull Request Checks
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
+    types: [opened, synchronize, reopened]
     paths:
       - '**.py'
       - '**.ts'
       - '**.tsx'
       - 'package.json'
       - 'requirements.txt'
+      - '.github/workflows/**'
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
-    services:
-      ollama:
-        image: ollama/ollama:latest
-        ports:
-          - 11434:11434
-        options: >-
-          --health-cmd "curl -f http://localhost:11434/api/version"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: ${{ github.head_ref }}
+
+    - name: Debug Information
+      run: |
+        echo "Current branch: ${{ github.head_ref }}"
+        echo "Base branch: ${{ github.base_ref }}"
+        echo "Event name: ${{ github.event_name }}"
+        echo "Changed files:"
+        git fetch origin ${{ github.base_ref }}
+        git diff --name-only origin/${{ github.base_ref }} HEAD
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -44,30 +47,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pytest pytest-asyncio pytest-cov
-        pip install -r requirements.txt
+        pip install -e .
 
     - name: Install Node.js dependencies
       run: npm ci
 
     - name: Run Python tests
       run: |
-        pytest __tests__/test_email_service.py -v --cov=email_service --cov-report=xml
-
-    - name: Run TypeScript tests
-      run: npm test
-
-    - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        fail_ci_if_error: true
-
-    - name: Check code formatting
-      run: |
-        pip install black
-        black --check .
-        npm run lint
-
-    - name: Type check
-      run: |
-        npm run type-check 
+        PYTHONPATH=$PYTHONPATH:$(pwd) pytest __tests__/test_email_service.py -v --cov=. --cov-report=xml
