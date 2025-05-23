@@ -6,45 +6,73 @@ NODE_BIN="/usr/bin/npm" # Adjust if needed
 UI_SERVICE="/etc/systemd/system"
 ENV_FILE="/etc/systemd/system/ui.env"
 
-
 echo "➡️ Starting Chatbot Ollama deployment..."
-#test
 
+# Install Node.js if not present
 if ! command -v npm &> /dev/null; then
-  echo "📦 Node.js/npm not found. Please install Node.js manually before running this script."
-  # Install prerequisites
+  echo "📦 Installing Node.js..."
   sudo apt update
   sudo apt install -y curl
-  # Download and run NodeSource install script (e.g., for Node.js 20)
   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
   sudo apt install -y nodejs
 fi
 
-# 2. Navigate to the project
+# Navigate to the project
 cd "$PROJECT_DIR"
-#test
-# 3. Install NPM dependencies
-echo "📥 Installing frontend dependencies with npm ci..."
-$NODE_BIN ci
-npm run build
 
-# 4. Copy and configure systemd services
-echo "⚙️ Setting up systemd services..."
+# Install dependencies
+echo "📥 Installing dependencies..."
+$NODE_BIN install
 
-# Save environment variable for systemd to use
+# Install Prisma
+echo "📥 Installing Prisma..."
+$NODE_BIN install @prisma/client
+$NODE_BIN install prisma --save-dev
+
+# Generate Prisma client
+echo "⚙️ Generating Prisma client..."
+npx prisma generate
+
+# Build the application
+echo "🏗️ Building the application..."
+$NODE_BIN run build
+
+# Configure environment
 echo "📄 Writing environment config..."
-echo "OLLAMA_SERVICE_IP=$OLLAMA_SERVICE_IP" | sudo tee /etc/systemd/system/ui.env > /dev/null
+echo "OLLAMA_SERVICE_IP=$OLLAMA_SERVICE_IP" | sudo tee "$ENV_FILE" > /dev/null
 
+# Update UI service configuration
+echo "⚙️ Updating UI service..."
+cat > ui.service << EOL
+[Unit]
+Description=UI Frontend Service
+After=network.target
 
-# UI service (runs `npm run dev`)
+[Service]
+User=ubuntu
+WorkingDirectory=$PROJECT_DIR
+ExecStart=/usr/bin/npm run start -- --hostname 0.0.0.0
+Restart=always
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+EnvironmentFile=$ENV_FILE
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+# Copy service file
 sudo cp ui.service "$UI_SERVICE"
 
-sudo systemctl daemon-reexec
+# Reload systemd and restart service
+echo "🔄 Restarting services..."
 sudo systemctl daemon-reload
 sudo systemctl enable ui
 sudo systemctl restart ui
 
-
+# Check service status
 if ! systemctl is-active --quiet ui; then
   echo "❌ UI service failed to start!"
   sudo systemctl status ui
