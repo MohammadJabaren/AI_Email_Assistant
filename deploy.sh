@@ -22,16 +22,29 @@ cd "$PROJECT_DIR"
 
 # Install dependencies
 echo "📥 Installing dependencies..."
-$NODE_BIN install
+$NODE_BIN install --legacy-peer-deps
 
 # Install Prisma
 echo "📥 Installing Prisma..."
-$NODE_BIN install @prisma/client
-$NODE_BIN install prisma --save-dev
+$NODE_BIN install @prisma/client --legacy-peer-deps
+$NODE_BIN install prisma --save-dev --legacy-peer-deps
+
+# Create Prisma directory if it doesn't exist
+mkdir -p prisma
+
+# Initialize Prisma if schema doesn't exist
+if [ ! -f "prisma/schema.prisma" ]; then
+  echo "⚙️ Initializing Prisma schema..."
+  npx prisma init
+fi
 
 # Generate Prisma client
 echo "⚙️ Generating Prisma client..."
 npx prisma generate
+
+# Push the schema to the database
+echo "⚙️ Pushing database schema..."
+npx prisma db push
 
 # Build the application
 echo "🏗️ Building the application..."
