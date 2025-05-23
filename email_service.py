@@ -28,10 +28,9 @@ class LanguageInfo:
 
 class EmailService:
     def __init__(self, ollama_url: Optional[str] = None, debug: bool = False):
-
         self.ollama_url = ollama_url or os.getenv("OLLAMA_SERVICE_IP")
         if not self.ollama_url:
-            raise ValueError("OLLAMA_SERVICE_IP environment variable is not set") 
+            raise ValueError("OLLAMA_SERVICE_IP environment variable is not set and no ollama_url provided") 
         self.debug = debug
         self.language_map = self._initialize_language_map()
         self.action = None

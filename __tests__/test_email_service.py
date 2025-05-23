@@ -123,7 +123,11 @@ async def test_handle_email_action_reply(email_service):
 
 def test_invalid_ollama_url():
     """Test initialization with invalid Ollama URL"""
-    with pytest.raises(ValueError):
+    # Clear the environment variable to ensure it's not set
+    if "OLLAMA_SERVICE_IP" in os.environ:
+        del os.environ["OLLAMA_SERVICE_IP"]
+    
+    with pytest.raises(ValueError, match="OLLAMA_SERVICE_IP environment variable is not set and no ollama_url provided"):
         EmailService(ollama_url=None)
 
 @pytest.mark.asyncio
