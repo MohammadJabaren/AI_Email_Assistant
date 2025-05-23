@@ -105,11 +105,11 @@ class EmailService:
     def get_language_info(self, language: str) -> LanguageInfo:
         return self.language_map.get(language, self.language_map['en'])
 
-    def create_email_prompt(self, text: str, tone: EmailTone, language: str, previous_email: Optional[str] = None) -> str:
+    def create_email_prompt(self, text: str, tone: EmailTone, language: str, previous_email: Optional[str] = None, action: Optional[str] = None) -> str:
         tone_instructions = self.get_tone_instructions(tone)
         language_info = self.get_language_info(language)
 
-        if self.action == 'reply':
+        if action == 'reply':
             if not previous_email:
                 raise ValueError("Previous email is required for reply action")
             return f"""Write a response to this email in {language_info.name}:
@@ -135,7 +135,7 @@ Requirements:
 
 Remember: This should be a new response, not a template or modification of the original."""
 
-        elif self.action == 'summarize':
+        elif action == 'summarize':
             if not previous_email:
                 raise ValueError("Previous email is required for summarize action")
             return f"""Summarize the following email in {language_info.name}:
@@ -149,7 +149,7 @@ Instructions:
 - Keep the total summary under 50 words
 - Be clear and direct"""
 
-        elif self.action == 'enhance':
+        elif action == 'enhance':
             if not previous_email:
                 raise ValueError("Previous email is required for enhance action")
             return f"""Enhance this email in {language_info.name}:
@@ -224,8 +224,7 @@ Requirements:
         language: str,
         previous_email: Optional[str] = None
     ) -> str:
-        self.action = action  # Set the action type
-        prompt = self.create_email_prompt(text, tone, language, previous_email)
+        prompt = self.create_email_prompt(text, tone, language, previous_email, action)
 
         start_time = time.time()  # ⏱ Start timing
         result = await self.generate_with_ollama(prompt)

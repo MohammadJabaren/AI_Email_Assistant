@@ -1,7 +1,7 @@
 import pytest
-from email_service import EmailService, EmailTone
 import os
 from unittest.mock import patch, MagicMock
+from email_service import EmailService, EmailTone
 
 @pytest.fixture
 def email_service():
@@ -43,7 +43,8 @@ async def test_create_email_prompt_write(email_service):
     prompt = email_service.create_email_prompt(
         text="Test content",
         tone=EmailTone.PROFESSIONAL,
-        language='en'
+        language='en',
+        action='write'
     )
     assert "Write a new email in English" in prompt
     assert "Test content" in prompt
@@ -57,7 +58,8 @@ async def test_create_email_prompt_reply(email_service):
         text="Test reply",
         tone=EmailTone.PROFESSIONAL,
         language='en',
-        previous_email="Original email content"
+        previous_email="Original email content",
+        action='reply'
     )
     assert "Write a response to this email" in prompt
     assert "Original email content" in prompt
@@ -70,7 +72,8 @@ async def test_create_email_prompt_summarize(email_service):
         text="",
         tone=EmailTone.PROFESSIONAL,
         language='en',
-        previous_email="Email to summarize"
+        previous_email="Email to summarize",
+        action='summarize'
     )
     assert "Summarize the following email" in prompt
     assert "Email to summarize" in prompt
@@ -82,7 +85,8 @@ async def test_create_email_prompt_enhance(email_service):
         text="Enhance this",
         tone=EmailTone.PROFESSIONAL,
         language='en',
-        previous_email="Original email"
+        previous_email="Original email",
+        action='enhance'
     )
     assert "Enhance this email" in prompt
     assert "Original email" in prompt
