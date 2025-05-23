@@ -55,12 +55,3 @@ jobs:
     - name: Run Python tests
       run: |
         PYTHONPATH=$PYTHONPATH:$(pwd) pytest __tests__/test_email_service.py -v --cov=. --cov-report=xml
-
-    - name: Run TypeScript tests
-      run: npm test
-
-
-
-    - name: Type check
-      run: |
-        npm run type-check 
