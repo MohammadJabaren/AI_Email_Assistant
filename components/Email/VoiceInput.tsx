@@ -29,7 +29,15 @@ const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInput
         };
 
         recognitionRef.current.onerror = (event: any) => {
-          setError(`Error: ${event.error}`);
+          if (event.error === 'not-allowed') {
+            setError('Microphone access denied. Please allow microphone access in your browser settings.');
+          } else if (event.error === 'no-speech') {
+            setError('No speech detected. Please try speaking again.');
+          } else if (event.error === 'audio-capture') {
+            setError('No microphone found. Please check your microphone connection.');
+          } else {
+            setError(`Error: ${event.error}`);
+          }
           onRecordingChange(false);
         };
 
@@ -37,21 +45,34 @@ const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInput
           onRecordingChange(false);
         };
       } else {
-        setError('Speech recognition is not supported in your browser.');
+        setError('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
       }
     }
   }, [onTranscript, onRecordingChange]);
 
-  const toggleRecording = () => {
+  const toggleRecording = async () => {
     if (!recognitionRef.current) return;
 
-    if (isRecording) {
-      recognitionRef.current.stop();
-    } else {
-      setError(null);
-      recognitionRef.current.start();
+    try {
+      if (isRecording) {
+        recognitionRef.current.stop();
+      } else {
+        // Request microphone permission explicitly
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop()); // Stop the stream after getting permission
+        
+        setError(null);
+        recognitionRef.current.start();
+      }
+      onRecordingChange(!isRecording);
+    } catch (err: any) {
+      if (err.name === 'NotAllowedError') {
+        setError('Microphone access denied. Please allow microphone access in your browser settings.');
+      } else {
+        setError('Failed to access microphone. Please check your browser settings.');
+      }
+      onRecordingChange(false);
     }
-    onRecordingChange(!isRecording);
   };
 
   return (
@@ -72,7 +93,9 @@ const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInput
         )}
       </button>
       {error && (
-        <div className="text-red-500 text-sm mt-2 bg-red-100/10 p-2 rounded-lg">{error}</div>
+        <div className="text-red-500 text-sm mt-2 bg-red-100/10 p-2 rounded-lg max-w-[200px] text-center">
+          {error}
+        </div>
       )}
       {isRecording && (
         <div className="text-sm text-blue-400 animate-pulse bg-blue-500/10 px-3 py-1 rounded-full">
