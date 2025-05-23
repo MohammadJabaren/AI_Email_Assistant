@@ -1,21 +1,14 @@
-# /etc/systemd/system/ui.service
 [Unit]
-Description=UI Frontend Service
+Description=AI Email Assistant
 After=network.target
 
 [Service]
 User=ubuntu
 WorkingDirectory=/home/ubuntu/AI_Email_Assistant
-ExecStartPre=/usr/bin/npm run build
-ExecStart=/usr/bin/npm run start -- --hostname 0.0.0.0
+ExecStart=/usr/bin/npm start
 Restart=always
-Environment=PATH=/usr/bin:/usr/local/bin
 Environment=NODE_ENV=production
-EnvironmentFile=/etc/systemd/system/ui.env
-StandardOutput=journal
-StandardError=journal
+Environment=PORT=3000
 
 [Install]
 WantedBy=multi-user.target
-
-#test
