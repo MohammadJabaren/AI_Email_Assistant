@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { IconMicrophone, IconMicrophoneOff } from '@tabler/icons-react';
+import { IconMicrophone, IconMicrophoneOff, IconAlertCircle } from '@tabler/icons-react';
 
 interface VoiceInputProps {
   onTranscript: (text: string) => void;
@@ -9,6 +9,7 @@ interface VoiceInputProps {
 
 const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInputProps) => {
   const [error, setError] = useState<string | null>(null);
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
@@ -50,27 +51,60 @@ const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInput
     }
   }, [onTranscript, onRecordingChange]);
 
+  const requestMicrophonePermission = async () => {
+    try {
+      setIsRequestingPermission(true);
+      setError(null);
+      
+      // First, try to get the current permission state
+      const permissionStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      
+      if (permissionStatus.state === 'denied') {
+        setError('Microphone access is blocked. Please enable it in Chrome settings: chrome://settings/content/microphone');
+        return false;
+      }
+
+      // Request microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: true,
+        video: false
+      });
+      
+      // Stop all tracks after getting permission
+      stream.getTracks().forEach(track => track.stop());
+      
+      return true;
+    } catch (err: any) {
+      if (err.name === 'NotAllowedError') {
+        setError('Microphone access denied. Please allow microphone access in your browser settings.');
+      } else if (err.name === 'NotFoundError') {
+        setError('No microphone found. Please check your microphone connection.');
+      } else {
+        setError('Failed to access microphone. Please check your browser settings.');
+      }
+      return false;
+    } finally {
+      setIsRequestingPermission(false);
+    }
+  };
+
   const toggleRecording = async () => {
     if (!recognitionRef.current) return;
 
     try {
       if (isRecording) {
         recognitionRef.current.stop();
+        onRecordingChange(false);
       } else {
-        // Request microphone permission explicitly
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop()); // Stop the stream after getting permission
-        
-        setError(null);
-        recognitionRef.current.start();
+        const hasPermission = await requestMicrophonePermission();
+        if (hasPermission) {
+          recognitionRef.current.start();
+          onRecordingChange(true);
+        }
       }
-      onRecordingChange(!isRecording);
     } catch (err: any) {
-      if (err.name === 'NotAllowedError') {
-        setError('Microphone access denied. Please allow microphone access in your browser settings.');
-      } else {
-        setError('Failed to access microphone. Please check your browser settings.');
-      }
+      console.error('Recording error:', err);
+      setError('Failed to start recording. Please try again.');
       onRecordingChange(false);
     }
   };
@@ -79,22 +113,28 @@ const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInput
     <div className="flex flex-col items-center gap-2">
       <button
         onClick={toggleRecording}
+        disabled={isRequestingPermission}
         className={`p-3 rounded-full transition-all duration-200 shadow-lg ${
           isRecording
             ? 'bg-red-500 hover:bg-red-600'
+            : isRequestingPermission
+            ? 'bg-gray-500 cursor-wait'
             : 'bg-blue-500 hover:bg-blue-600'
-        } text-white hover:scale-110 active:scale-95`}
+        } text-white hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
         title={isRecording ? 'Stop Recording' : 'Start Voice Input'}
       >
         {isRecording ? (
           <IconMicrophoneOff size={24} />
+        ) : isRequestingPermission ? (
+          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
         ) : (
           <IconMicrophone size={24} />
         )}
       </button>
       {error && (
-        <div className="text-red-500 text-sm mt-2 bg-red-100/10 p-2 rounded-lg max-w-[200px] text-center">
-          {error}
+        <div className="text-red-500 text-sm mt-2 bg-red-100/10 p-2 rounded-lg max-w-[250px] text-center flex items-center gap-2">
+          <IconAlertCircle size={16} />
+          <span>{error}</span>
         </div>
       )}
       {isRecording && (
