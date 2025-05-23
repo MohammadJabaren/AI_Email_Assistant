@@ -2,8 +2,9 @@ name: Pull Request Checks
 
 on:
   pull_request:
-    branches: [ main]
-   
+    branches:
+      - main
+  
 
 jobs:
   test:
@@ -14,15 +15,6 @@ jobs:
       with:
         fetch-depth: 0
         ref: ${{ github.head_ref }}
-
-    - name: Debug Information
-      run: |
-        echo "Current branch: ${{ github.head_ref }}"
-        echo "Base branch: ${{ github.base_ref }}"
-        echo "Event name: ${{ github.event_name }}"
-        echo "Changed files:"
-        git fetch origin ${{ github.base_ref }}
-        git diff --name-only origin/${{ github.base_ref }} HEAD
 
     - name: Set up Python
       uses: actions/setup-python@v4
