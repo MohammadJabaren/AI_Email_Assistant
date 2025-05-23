@@ -61,9 +61,12 @@ async def test_create_email_prompt_reply(email_service):
         previous_email="Original email content",
         action='reply'
     )
-    assert "Write a response to this email" in prompt
+    assert "You are an AI assistant helping to write an email response" in prompt
+    assert "Write a natural, conversational response" in prompt
     assert "Original email content" in prompt
     assert "Test reply" in prompt
+    assert "Dear" in prompt
+    assert "Best regards" in prompt
 
 @pytest.mark.asyncio
 async def test_create_email_prompt_summarize(email_service):
