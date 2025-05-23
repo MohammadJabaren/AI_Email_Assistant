@@ -68,7 +68,12 @@ export default async function handler(
             if (response.status === 'error') {
               reject(new Error(response.error || 'An error occurred'));
             } else {
-              resolve(response.result);
+              // Clean up the response for better formatting
+              const cleanedResponse = response.result
+                .replace(/^\s*[\r\n]/gm, '') // Remove empty lines at start
+                .replace(/\n{3,}/g, '\n\n')  // Replace multiple newlines with double newlines
+                .trim();
+              resolve(cleanedResponse);
             }
           } catch (e) {
             // If the response isn't JSON, use it as is

@@ -28,10 +28,9 @@ class LanguageInfo:
 
 class EmailService:
     def __init__(self, ollama_url: Optional[str] = None, debug: bool = False):
-
         self.ollama_url = ollama_url or os.getenv("OLLAMA_SERVICE_IP")
         if not self.ollama_url:
-            raise ValueError("OLLAMA_SERVICE_IP environment variable is not set") 
+            raise ValueError("OLLAMA_SERVICE_IP environment variable is not set and no ollama_url provided") 
         self.debug = debug
         self.language_map = self._initialize_language_map()
         self.action = None
@@ -105,37 +104,36 @@ class EmailService:
     def get_language_info(self, language: str) -> LanguageInfo:
         return self.language_map.get(language, self.language_map['en'])
 
-    def create_email_prompt(self, text: str, tone: EmailTone, language: str, previous_email: Optional[str] = None) -> str:
+    def create_email_prompt(self, text: str, tone: EmailTone, language: str, previous_email: Optional[str] = None, action: Optional[str] = None) -> str:
         tone_instructions = self.get_tone_instructions(tone)
         language_info = self.get_language_info(language)
 
-        if self.action == 'reply':
+        if action == 'reply':
             if not previous_email:
                 raise ValueError("Previous email is required for reply action")
-            return f"""Write a response to this email in {language_info.name}:
+            return f"""You are an AI assistant helping to write an email response. Write a natural, conversational response to this email in {language_info.name}:
 
 Original Email:
 {previous_email}
 
-Your Response Instructions:
+Context and Instructions:
 {text}
 
 Requirements:
-1. Write a completely new response in {language_info.name} ONLY
-2. Do NOT use templates or placeholders like [Your Name] or [Date]
+1. Write a natural, conversational response in {language_info.name} ONLY
+2. Do NOT use templates or placeholders
 3. Do NOT mix languages
-4. Do NOT copy or repeat any part of the original email
-5. Start with {language_info.formalGreeting}
-6. Acknowledge the original email's main points
-7. Provide your specific response to the dinner invitation
-8. End with {language_info.closing}
-9. Keep the tone {tone_instructions}
-10. Use proper {language_info.name} grammar and punctuation
-11. Make it personal and specific to the situation
+4. Start with {language_info.formalGreeting}
+5. Acknowledge the original email's main points
+6. Provide your specific response
+7. End with {language_info.closing}
+8. Keep the tone {tone_instructions}
+9. Use proper {language_info.name} grammar and punctuation
+10. Make it personal and specific to the situation
 
-Remember: This should be a new response, not a template or modification of the original."""
+Remember: Write as if you're having a natural conversation, not a formal template."""
 
-        elif self.action == 'summarize':
+        elif action == 'summarize':
             if not previous_email:
                 raise ValueError("Previous email is required for summarize action")
             return f"""Summarize the following email in {language_info.name}:
@@ -149,7 +147,7 @@ Instructions:
 - Keep the total summary under 50 words
 - Be clear and direct"""
 
-        elif self.action == 'enhance':
+        elif action == 'enhance':
             if not previous_email:
                 raise ValueError("Previous email is required for enhance action")
             return f"""Enhance this email in {language_info.name}:
@@ -188,23 +186,22 @@ Requirements:
     async def generate_with_ollama(self, prompt: str) -> str:
         try:
             params = {
-                "model": "tinyllama",
+                "model": "phi",
                 "prompt": prompt,
                 "stream": False,
-                "max_tokens": 250,
-                "temperature": 0.8,
-                "top_p": 0.9,
-                "top_k": 40,
-                "repeat_penalty": 1.2,
+                "max_tokens": 500,
+                "temperature": 0.7,
+                "top_p": 0.95,
+                "top_k": 50,
+                "repeat_penalty": 1.1,
                 "stop": ["</email>", "---", "[Your", "[Company", "[Email", "[Today's"],
-                "num_predict": 150,
-                "num_ctx": 512,
+                "num_predict": 300,
+                "num_ctx": 1024,
                 "num_thread": 8,
                 "num_gpu": 1,
                 "seed": None
             }
 
-                
             response = requests.post(
                 f"{self.ollama_url}/api/generate",
                 json=params
@@ -224,8 +221,7 @@ Requirements:
         language: str,
         previous_email: Optional[str] = None
     ) -> str:
-        self.action = action  # Set the action type
-        prompt = self.create_email_prompt(text, tone, language, previous_email)
+        prompt = self.create_email_prompt(text, tone, language, previous_email, action)
 
         start_time = time.time()  # ⏱ Start timing
         result = await self.generate_with_ollama(prompt)

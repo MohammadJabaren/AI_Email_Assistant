@@ -1,7 +1,7 @@
 import pytest
-from email_service import EmailService, EmailTone
 import os
 from unittest.mock import patch, MagicMock
+from email_service import EmailService, EmailTone
 
 @pytest.fixture
 def email_service():
@@ -43,7 +43,8 @@ async def test_create_email_prompt_write(email_service):
     prompt = email_service.create_email_prompt(
         text="Test content",
         tone=EmailTone.PROFESSIONAL,
-        language='en'
+        language='en',
+        action='write'
     )
     assert "Write a new email in English" in prompt
     assert "Test content" in prompt
@@ -57,11 +58,15 @@ async def test_create_email_prompt_reply(email_service):
         text="Test reply",
         tone=EmailTone.PROFESSIONAL,
         language='en',
-        previous_email="Original email content"
+        previous_email="Original email content",
+        action='reply'
     )
-    assert "Write a response to this email" in prompt
+    assert "You are an AI assistant helping to write an email response" in prompt
+    assert "Write a natural, conversational response" in prompt
     assert "Original email content" in prompt
     assert "Test reply" in prompt
+    assert "Dear" in prompt
+    assert "Best regards" in prompt
 
 @pytest.mark.asyncio
 async def test_create_email_prompt_summarize(email_service):
@@ -70,7 +75,8 @@ async def test_create_email_prompt_summarize(email_service):
         text="",
         tone=EmailTone.PROFESSIONAL,
         language='en',
-        previous_email="Email to summarize"
+        previous_email="Email to summarize",
+        action='summarize'
     )
     assert "Summarize the following email" in prompt
     assert "Email to summarize" in prompt
@@ -82,7 +88,8 @@ async def test_create_email_prompt_enhance(email_service):
         text="Enhance this",
         tone=EmailTone.PROFESSIONAL,
         language='en',
-        previous_email="Original email"
+        previous_email="Original email",
+        action='enhance'
     )
     assert "Enhance this email" in prompt
     assert "Original email" in prompt
@@ -119,7 +126,11 @@ async def test_handle_email_action_reply(email_service):
 
 def test_invalid_ollama_url():
     """Test initialization with invalid Ollama URL"""
-    with pytest.raises(ValueError):
+    # Clear the environment variable to ensure it's not set
+    if "OLLAMA_SERVICE_IP" in os.environ:
+        del os.environ["OLLAMA_SERVICE_IP"]
+    
+    with pytest.raises(ValueError, match="OLLAMA_SERVICE_IP environment variable is not set and no ollama_url provided"):
         EmailService(ollama_url=None)
 
 @pytest.mark.asyncio
@@ -129,4 +140,16 @@ async def test_generate_with_ollama_error(email_service):
         mock_post.side_effect = Exception("API Error")
         with pytest.raises(Exception) as exc_info:
             await email_service.generate_with_ollama("test prompt")
-        assert "Failed to generate email" in str(exc_info.value) 
+        assert "Failed to generate email" in str(exc_info.value)
+
+@pytest.mark.asyncio
+async def test_generate_with_ollama_success(email_service):
+    """Test successful response from generate_with_ollama"""
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"response": "Generated content"}
+    mock_response.raise_for_status = MagicMock()
+    
+    with patch('requests.post', return_value=mock_response) as mock_post:
+        result = await email_service.generate_with_ollama("test prompt")
+        assert result == "Generated content"
+        mock_post.assert_called_once() 
