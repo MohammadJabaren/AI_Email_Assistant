@@ -3,14 +3,7 @@ name: Pull Request Checks
 on:
   pull_request:
     branches: [ main]
-    types: [opened, synchronize, reopened]
-    paths:
-      - '**.py'
-      - '**.ts'
-      - '**.tsx'
-      - 'package.json'
-      - 'requirements.txt'
-      - '.github/workflows/**'
+   
 
 jobs:
   test:
