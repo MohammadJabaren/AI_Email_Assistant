@@ -58,12 +58,12 @@ const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInput
     <div className="flex flex-col items-center gap-2">
       <button
         onClick={toggleRecording}
-        className={`p-3 rounded-full transition-all duration-200 ${
+        className={`p-3 rounded-full transition-all duration-200 shadow-lg ${
           isRecording
             ? 'bg-red-500 hover:bg-red-600'
             : 'bg-blue-500 hover:bg-blue-600'
-        } text-white`}
-        title={isRecording ? 'Stop Recording' : 'Start Recording'}
+        } text-white hover:scale-110 active:scale-95`}
+        title={isRecording ? 'Stop Recording' : 'Start Voice Input'}
       >
         {isRecording ? (
           <IconMicrophoneOff size={24} />
@@ -72,10 +72,10 @@ const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInput
         )}
       </button>
       {error && (
-        <div className="text-red-500 text-sm mt-2">{error}</div>
+        <div className="text-red-500 text-sm mt-2 bg-red-100/10 p-2 rounded-lg">{error}</div>
       )}
       {isRecording && (
-        <div className="text-sm text-gray-500 animate-pulse">
+        <div className="text-sm text-blue-400 animate-pulse bg-blue-500/10 px-3 py-1 rounded-full">
           Recording...
         </div>
       )}
