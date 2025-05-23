@@ -26,6 +26,7 @@ cd "$PROJECT_DIR"
 # 3. Install NPM dependencies
 echo "📥 Installing frontend dependencies with npm ci..."
 $NODE_BIN ci
+npm run build
 
 # 4. Copy and configure systemd services
 echo "⚙️ Setting up systemd services..."
