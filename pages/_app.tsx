@@ -6,6 +6,7 @@ import { Session } from 'next-auth';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { Inter } from 'next/font/google';
+import { useState } from 'react';
 
 import '@/styles/globals.css';
 
@@ -18,7 +19,17 @@ type CustomAppProps = AppProps & {
 };
 
 function App({ Component, pageProps: { session, ...pageProps } }: CustomAppProps) {
-  const queryClient = new QueryClient();
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+        retry: false,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+      },
+    },
+  }));
 
   return (
     <SessionProvider session={session}>
