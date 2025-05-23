@@ -2,13 +2,15 @@ name: Pull Request Checks
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
+    types: [opened, synchronize, reopened]
     paths:
       - '**.py'
       - '**.ts'
       - '**.tsx'
       - 'package.json'
       - 'requirements.txt'
+      - '.github/workflows/**'
 
 jobs:
   test:
@@ -27,6 +29,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Debug Information
+      run: |
+        echo "Current branch: ${{ github.head_ref }}"
+        echo "Base branch: ${{ github.base_ref }}"
+        echo "Event name: ${{ github.event_name }}"
+        echo "Changed files:"
+        git diff --name-only ${{ github.base_ref }} ${{ github.head_ref }}
 
     - name: Set up Python
       uses: actions/setup-python@v4
