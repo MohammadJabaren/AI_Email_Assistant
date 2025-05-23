@@ -89,7 +89,7 @@ const Sidebar = <T,>({
           </div>
           <input
             type="text"
-            placeholder={t('Search...') || ''}
+          placeholder={t('Search...') || ''}
             value={searchTerm}
             onChange={(e) => handleSearchTerm(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
@@ -129,7 +129,7 @@ const Sidebar = <T,>({
         {/* Footer Section */}
         {footerComponent && (
           <div className="border-t border-white/10 pt-4">
-            {footerComponent}
+        {footerComponent}
           </div>
         )}
       </div>
