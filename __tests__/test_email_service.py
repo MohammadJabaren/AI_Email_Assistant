@@ -129,4 +129,16 @@ async def test_generate_with_ollama_error(email_service):
         mock_post.side_effect = Exception("API Error")
         with pytest.raises(Exception) as exc_info:
             await email_service.generate_with_ollama("test prompt")
-        assert "Failed to generate email" in str(exc_info.value) 
+        assert "Failed to generate email" in str(exc_info.value)
+
+@pytest.mark.asyncio
+async def test_generate_with_ollama_success(email_service):
+    """Test successful response from generate_with_ollama"""
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"response": "Generated content"}
+    mock_response.raise_for_status = MagicMock()
+    
+    with patch('requests.post', return_value=mock_response) as mock_post:
+        result = await email_service.generate_with_ollama("test prompt")
+        assert result == "Generated content"
+        mock_post.assert_called_once() 

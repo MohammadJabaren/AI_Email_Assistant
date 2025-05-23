@@ -15,19 +15,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
-    services:
-      ollama:
-        image: ollama/ollama:latest
-        ports:
-          - 11434:11434
-        options: >-
-          --health-cmd "curl -f http://localhost:11434/api/version"
-          --health-interval 30s
-          --health-timeout 30s
-          --health-retries 10
-        env:
-          OLLAMA_HOST: 0.0.0.0
 
     steps:
     - uses: actions/checkout@v3
@@ -62,28 +49,6 @@ jobs:
 
     - name: Install Node.js dependencies
       run: npm ci
-
-    - name: Wait for Ollama
-      run: |
-        echo "Waiting for Ollama service to be ready..."
-        for i in {1..30}; do
-          if curl -s http://localhost:11434/api/version > /dev/null; then
-            echo "Ollama is ready!"
-            break
-          fi
-          echo "Attempt $i: Ollama not ready yet..."
-          sleep 10
-          if [ $i -eq 30 ]; then
-            echo "Ollama failed to start within timeout"
-            exit 1
-          fi
-        done
-
-    - name: Pull Ollama Model
-      run: |
-        echo "Pulling required Ollama model..."
-        curl -X POST http://localhost:11434/api/pull -d '{"name": "tinyllama"}'
-        sleep 10  # Give some time for the model to be ready
 
     - name: Run Python tests
       run: |
