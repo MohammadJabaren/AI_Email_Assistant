@@ -4,91 +4,63 @@ This project is based on:
 - 
 
 Licensed under the MIT License.
-# Chatbot Ollama
+AI Email Assistant
+An intelligent email assistant powered by AI that helps you write, enhance, summarize, and reply to emails using natural language processing and voice input.
 
-## About
+🚀 Features
+  -🤖 AI-powered email writing and enhancement
+  
+  -🎤 Voice input for hands-free email composition
+  
+  -🌍 Multi-language support
+  
+  -🎭 Multiple tone options (Professional, Friendly, Formal, etc.)
+  
+  -💬 Real-time chat interface
+  
+  -📱 Responsive design
+  
+  -💾 Local storage for chat history
 
-Chatbot Ollama is an open source chat UI for Ollama.
 
-This project is based on [chatbot-ui](https://github.com/mckaywrigley/chatbot-ui) by [Mckay Wrigley](https://github.com/mckaywrigley).
+🔧 Deployment
+The application is automatically deployed using GitHub Actions.
 
-![Chatbot Ollama](./public/screenshots/screenshot-2023-10-02.png)
+* Prerequisites:
+    Before triggering deployment, make sure you:
+    
+      Provision two EC2 instances:
+      
+            Frontend Instance: Hosts the Next.js app
+            
+            Ollama Instance: Runs the AI model service
+            
+      Configure GitHub secrets in your repository:
+      
+            Secret Name	Description
+            SSH_PRIVATE_KEY	Private key for SSH access to EC2
+            EC2_HOST	Public IP
+            EC2_USERNAME	SSH username (e.g., ubuntu)
+            OLLAMA_SERVICE_IP	Private IP of the Ollama instance
 
-## Updates
-
-Chatbot Ollama will be updated over time.
-
-### Next up
-
-- [ ] pull a model
-- [ ] delete a model
-- [ ] show model information
-
-## Docker
-
-Build locally:
-
-```shell
-docker build -t chatbot-ollama .
-docker run -p 3000:3000 chatbot-ollama
-```
-
-Pull from ghcr:
-
-```bash
-docker run -p 3000:3000 ghcr.io/ivanfioravanti/chatbot-ollama:main
-```
-
-## Running Locally
-
-### 1. Clone Repo
-
-```bash
-git clone https://github.com/ivanfioravanti/chatbot-ollama.git
-```
-
-### 2. Move to folder
-
-```bash
-cd chatbot-ollama
-```
-
-### 3. Install Dependencies
-
-```bash
-npm ci
-```
-
-### 4. Run Ollama server
-
-Either via the cli:
-
-```bash
-ollama serve
-```
-
-or via the [desktop client](https://ollama.ai/download)
-
-### 5. Run App
-
-```bash
-npm run dev
-```
-
-### 6. Use It
-
-You should be able to start chatting.
-
-## Configuration
-
-When deploying the application, the following environment variables can be set:
-
-| Environment Variable              | Default value                  | Description                                                                                                                               |
-| --------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| DEFAULT_MODEL                     | `mistral:latest`                | The default model to use on new conversations                                                                                             |
-| NEXT_PUBLIC_DEFAULT_SYSTEM_PROMPT | [see here](utils/app/const.ts) | The default system prompt to use on new conversations                                                                                     |
-| NEXT_PUBLIC_DEFAULT_TEMPERATURE   | 1                              | The default temperature to use on new conversations                                                                                       |
-
-## Contact
-
-If you have any questions, feel free to reach out to me on [X](https://x.com/ivanfioravanti).
+⚙️ One-Click Deployment via Pull Request
+  Get your own assistant running in 3 easy steps:
+    
+    Clone the repo:
+      git clone https://github.com/yourusername/ai-email-assistant.git
+      cd ai-email-assistant
+    
+    Make changes and push a branch:
+      git checkout -b my-feature
+      git commit -am "Customize assistant"
+      git push origin my-feature
+    
+    Open a Pull Request:
+    
+      Go to GitHub → Pull Requests → New Pull Request
+      Merge into main when ready
+  
+    🔁 On merge, GitHub Actions will:
+      Run deploy.sh with the Ollama instance IP
+      Deploy your changes automatically 🎉
+    
