@@ -11,6 +11,7 @@ const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInput
   const [error, setError] = useState<string | null>(null);
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const finalTranscriptRef = useRef('');
 
   useEffect(() => {
     // Initialize speech recognition
@@ -18,15 +19,27 @@ const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInput
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         recognitionRef.current = new SpeechRecognition();
-        recognitionRef.current.continuous = true;
+        recognitionRef.current.continuous = false;
         recognitionRef.current.interimResults = true;
         recognitionRef.current.lang = 'en-US';
 
         recognitionRef.current.onresult = (event: any) => {
-          const transcript = Array.from(event.results)
-            .map((result: any) => result[0].transcript)
-            .join('');
-          onTranscript(transcript);
+          let interimTranscript = '';
+          let finalTranscript = '';
+
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+
+          if (finalTranscript) {
+            finalTranscriptRef.current = finalTranscript;
+            onTranscript(finalTranscript);
+          }
         };
 
         recognitionRef.current.onerror = (event: any) => {
@@ -44,12 +57,15 @@ const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInput
 
         recognitionRef.current.onend = () => {
           onRecordingChange(false);
+          if (isRecording) {
+            recognitionRef.current.start();
+          }
         };
       } else {
         setError('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
       }
     }
-  }, [onTranscript, onRecordingChange]);
+  }, [onTranscript, onRecordingChange, isRecording]);
 
   const requestMicrophonePermission = async () => {
     try {
@@ -98,6 +114,7 @@ const VoiceInput = ({ onTranscript, isRecording, onRecordingChange }: VoiceInput
       } else {
         const hasPermission = await requestMicrophonePermission();
         if (hasPermission) {
+          finalTranscriptRef.current = '';
           recognitionRef.current.start();
           onRecordingChange(true);
         }
