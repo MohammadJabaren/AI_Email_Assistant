@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import ToneSelector, { EmailTone } from './ToneSelector';
 import LanguageSelector, { languages } from './LanguageSelector';
 import { useSession } from 'next-auth/react';
+import VoiceInput from './VoiceInput';
 
 interface Chat {
   id: string;
@@ -35,6 +36,7 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string>('');
+  const [isRecording, setIsRecording] = useState(false);
   const router = useRouter();
 
   // Get current chat's tone and language or default values
@@ -274,6 +276,14 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
   // Find the current language name
   const currentLanguageName = languages.find(l => l.code === currentLanguage)?.name || 'English';
 
+  // Add this function to handle voice input
+  const handleVoiceTranscript = (transcript: string) => {
+    setInput(prevInput => {
+      const newInput = prevInput ? `${prevInput} ${transcript}` : transcript;
+      return newInput;
+    });
+  };
+
   return (
     <>
       <Head>
@@ -413,29 +423,40 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
 
             {/* Input Area */}
             <div className="border-t border-white/10 p-4 bg-[#1a1b1e]/50 backdrop-blur-sm">
-              <form onSubmit={handleSubmit} className="flex items-center gap-4">
-                <textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={placeholder}
-                  className="flex-1 bg-gray-800/50 text-white rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none transition-all duration-200"
-                  rows={3}
-                />
-                <button
-                  type="submit"
-                  disabled={!input.trim() || loading}
-                  className={`p-4 rounded-xl transition-all duration-200 ${
-                    !input.trim() || loading
-                      ? 'bg-gray-700 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-500 hover:scale-105 active:scale-95'
-                  } text-white`}
-                >
-                  {loading ? (
-                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <IconSend size={24} />
-                  )}
-                </button>
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="flex items-start gap-4">
+                  <div className="flex-1 relative">
+                    <textarea
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder={placeholder}
+                      className="w-full bg-gray-800/50 text-white rounded-xl p-4 pr-16 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none transition-all duration-200"
+                      rows={3}
+                    />
+                    <div className="absolute bottom-4 right-4 z-10">
+                      <VoiceInput
+                        onTranscript={handleVoiceTranscript}
+                        isRecording={isRecording}
+                        onRecordingChange={setIsRecording}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || loading}
+                    className={`p-4 rounded-xl transition-all duration-200 ${
+                      !input.trim() || loading
+                        ? 'bg-gray-700 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-500 hover:scale-105 active:scale-95'
+                    } text-white`}
+                  >
+                    {loading ? (
+                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <IconSend size={24} />
+                    )}
+                  </button>
+                </div>
               </form>
             </div>
 
