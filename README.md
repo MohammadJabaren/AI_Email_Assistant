@@ -4,26 +4,32 @@ This project is based on:
 - 
 
 Licensed under the MIT License.
+
+
 AI Email Assistant
-An intelligent email assistant powered by AI that helps you write, enhance, summarize, and reply to emails using natural language processing and voice input.
+
+    An intelligent email assistant powered by AI that helps you write, enhance, summarize, and reply to emails using natural language     
+    processing and voice input.
 
 🚀 Features
-  -🤖 AI-powered email writing and enhancement
-  
-  -🎤 Voice input for hands-free email composition
-  
-  -🌍 Multi-language support
-  
-  -🎭 Multiple tone options (Professional, Friendly, Formal, etc.)
-  
-  -💬 Real-time chat interface
-  
-  -📱 Responsive design
-  
-  -💾 Local storage for chat history
+
+    -🤖 AI-powered email writing and enhancement
+    
+    -🎤 Voice input for hands-free email composition
+    
+    -🌍 Multi-language support
+    
+    -🎭 Multiple tone options (Professional, Friendly, Formal, etc.)
+    
+    -💬 Real-time chat interface
+    
+    -📱 Responsive design
+    
+    -💾 Local storage for chat history
 
 
 🔧 Deployment
+
 The application is automatically deployed using GitHub Actions.
 
 * Prerequisites:
