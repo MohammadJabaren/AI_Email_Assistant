@@ -434,13 +434,13 @@ const EmailActionPage = ({ title, action, placeholder }: EmailActionPageProps) =
                       rows={3}
                     />
                     <div className="absolute bottom-4 right-4 z-10">
-                       {/*
+
                       <VoiceInput
                         onTranscript={handleVoiceTranscript}
                         isRecording={isRecording}
                         onRecordingChange={setIsRecording}
                       />
-                        */}
+
                     </div>
                   </div>
                   <button
